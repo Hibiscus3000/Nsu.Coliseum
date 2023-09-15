@@ -10,23 +10,20 @@ public class Card
     public Card(CardType cardType, int number)
     {
         CardType = cardType;
+
+        if (number < 0 || number > 8) {
+            throw new ArgumentOutOfRangeException("card number should be a number from 0 to 8 inclusive");
+        }
         Number = number;
 
-        switch (cardType)
+        CardColor = cardType switch
         {
-            case CardType.Club:
-                CardColor = CardColor.Black;
-                break;
-            case CardType.Diamond:
-                CardColor = CardColor.Red;
-                break;
-            case CardType.Heart:
-                CardColor = CardColor.Red;
-                break;
-            case CardType.Spade:
-                CardColor = CardColor.Black;
-                break;
-        }
+            CardType.Club => CardColor.Black,
+            CardType.Diamond => CardColor.Red,
+            CardType.Heart => CardColor.Red,
+            CardType.Spade => CardColor.Black,
+            _ => throw new ArgumentException("unknown card type"),
+        };
     }
 
     public CardColor CardColor { get; }
@@ -35,23 +32,13 @@ public class Card
 
     public override string ToString()
     {
-        string letter = "";
-        switch (CardType)
+        return CardType switch
         {
-            case CardType.Club:
-                letter = "C";
-                break;
-            case CardType.Diamond:
-                letter = "D";
-                break;
-            case CardType.Heart:
-                letter = "H";
-                break;
-            case CardType.Spade:
-                letter = "S";
-                break;
-        }
-        return letter + Number;
+            CardType.Club => "C",
+            CardType.Diamond => "D",
+            CardType.Heart => "H",
+            CardType.Spade => "S",
+        } + Number;
     }
 }
 
