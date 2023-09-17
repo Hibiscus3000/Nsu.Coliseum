@@ -2,19 +2,24 @@
 
 public interface IStrategy
 {
-    Card PickCard(Card[] cards);
+    int PickCard(Card[] cards);
 }
 
 public class Card
 {
+    public CardColor CardColor { get; }
+    private readonly CardType _cardType;
+    private readonly int _number; // number from 0 to 8 inclusive
+    
     public Card(CardType cardType, int number)
     {
-        CardType = cardType;
+        _cardType = cardType;
 
-        if (number < 0 || number > 8) {
+        if (number < 0 || number > 8)
+        {
             throw new ArgumentOutOfRangeException("card number should be a number from 0 to 8 inclusive");
         }
-        Number = number;
+        _number = number;
 
         CardColor = cardType switch
         {
@@ -26,20 +31,14 @@ public class Card
         };
     }
 
-    public CardColor CardColor { get; }
-    public CardType CardType { get; }
-    public int Number { get; } // number from 0 to 8 inclusive
 
-    public override string ToString()
+    public override string ToString() => _cardType switch
     {
-        return CardType switch
-        {
-            CardType.Club => "C",
-            CardType.Diamond => "D",
-            CardType.Heart => "H",
-            CardType.Spade => "S",
-        } + Number;
-    }
+        CardType.Club => "C",
+        CardType.Diamond => "D",
+        CardType.Heart => "H",
+        CardType.Spade => "S",
+    } + _number;
 }
 
 public enum CardType

@@ -1,8 +1,8 @@
 using StrategyInterface;
 
-public class Gods
+public static class Gods
 {
-    private static int _numberOfCards = 36;
+    private static readonly int _numberOfCards = 36;
 
     public static void Play(IStrategy elonStrategy, IStrategy markStrategy,
         int numberOfExperiments)
@@ -15,10 +15,13 @@ public class Gods
 
             Card[][] splitedDeck = deck.Split(2);
 
-            Card elonCard = elonStrategy.PickCard(splitedDeck[0]);
-            Card markCard = markStrategy.PickCard(splitedDeck[1]);
+            Card[] elonDeck = splitedDeck[0];
+            Card[] markDeck = splitedDeck[1];
 
-            if (elonCard.CardColor == markCard.CardColor)
+            int elonCardNum = elonStrategy.PickCard(elonDeck);
+            int markCardNum = markStrategy.PickCard(markDeck);
+
+            if (elonDeck[markCardNum].CardColor == markDeck[elonCardNum].CardColor)
             {
                 ++numberOfSuccesses;
             }

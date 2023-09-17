@@ -4,8 +4,8 @@ using StrategyInterface;
 
 public class ZeroStrategy : IStrategy
 {
-    public Card PickCard(Card[] cards)
+    public int PickCard(Card[] cards)
     {
-        return cards[0];
+        return 0;
     }
 }

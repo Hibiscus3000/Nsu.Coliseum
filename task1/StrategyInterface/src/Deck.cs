@@ -3,23 +3,23 @@ namespace StrategyInterface;
 public class Deck
 {
     private readonly int _numberOfCards;
-    private Card[] cards { get; }
+    private readonly Card[] _cards;
 
     public Deck(int numberOfCards)
     {
         _numberOfCards = numberOfCards;
         int numberOfCardsInSuit = numberOfCards / 4;
 
-        cards = new Card[_numberOfCards];
+        _cards = new Card[_numberOfCards];
         foreach (CardType cardType in Enum.GetValues(typeof(CardType)))
         {
             for (int i = 0; i < numberOfCardsInSuit; ++i)
             {
-                cards[(int)cardType * numberOfCardsInSuit + i] = new Card(cardType, i % numberOfCardsInSuit);
+                _cards[(int)cardType * numberOfCardsInSuit + i] = new Card(cardType, i % numberOfCardsInSuit);
             }
         }
 
-        ShuffleDeck(cards);
+        ShuffleDeck(_cards);
     }
 
     private static Card[] ShuffleDeck(Card[] cards)
@@ -47,7 +47,7 @@ public class Deck
             var groupIndex = i / numberOfCardsInGroup;
             var cardIndex = i % numberOfCardsInGroup;
  
-            splited[groupIndex][cardIndex] = cards[i];
+            splited[groupIndex][cardIndex] = _cards[i];
         }
 
         return splited;
@@ -55,7 +55,7 @@ public class Deck
 
     public void PrintDeck()
     {
-        foreach (Card card in cards)
+        foreach (Card card in _cards)
         {
             Console.Write(card.ToString() + " ");
         }
