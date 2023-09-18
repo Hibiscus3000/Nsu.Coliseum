@@ -1,21 +1,23 @@
-﻿using Strategy;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using DeckShufllerInterface;
+using Strategy;
 
 class Program
 {
+
     public static void Main(string[] args)
     {
-        var elonStrategy = new ZeroStrategy();
-        var markStrategy = new ZeroStrategy();
-
-        Opponent elon = new(elonStrategy);
-        Opponent mark = new(markStrategy);
-
-        var numberOfExperiments = 1_000_000;
-        if (args.Length > 0)
-        {
-            int.TryParse(args[0], out numberOfExperiments);
-        }
-
-        Gods.Play(elon, mark, numberOfExperiments);
+        CreateHostBuilder(args).Build().Run();
     }
-}
+
+    public static IHostBuilder CreateHostBuilder(string[] args) => Host.CreateDefaultBuilder(args)
+            .ConfigureServices((_, services) =>
+            {
+                services.AddHostedService<Gods>();
+                services.AddScoped<Experiment>();
+                services.AddScoped<IDeckShufller, DeckShufller>();
+                services.AddScoped<ElonMusk>(provider => new(new ZeroStrategy()));
+                services.AddScoped<MarkZuckerberg>(provider => new(new ZeroStrategy()));
+            });
+    }

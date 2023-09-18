@@ -1,23 +1,55 @@
-using StrategyInterface;
+using Microsoft.Extensions.Hosting;
+using DeckShufllerInterface;
 
-public static class Gods
+public class Gods : IHostedService
 {
-    private static readonly int _numberOfCards = 36;
-    private static readonly IDeckShuffler _deckShuffler = new DeckShuffler();
+    private readonly int _numberOfCards = 36;
+    private readonly int _numberOfExperiments = 1_000_000;
+    private readonly ElonMusk _elonMusk;
+    private readonly MarkZuckerberg _markZuckerberg;
 
-    public static void Play(Opponent elon, Opponent mark, int numberOfExperiments)
+    private readonly Experiment _experiment;
+    private readonly IDeckShufller _deckShuffler;
+
+    private readonly IHostApplicationLifetime _appLifetime;
+
+    public Gods(ElonMusk elonMusk, MarkZuckerberg markZuckerberg, Experiment experiment,
+        IDeckShufller deckShufller, IHostApplicationLifetime applicationLifetime)
+    {
+        _elonMusk = elonMusk;
+        _markZuckerberg = markZuckerberg;
+        _experiment = experiment;
+        _deckShuffler = deckShufller;
+
+        _appLifetime = applicationLifetime;
+    }
+
+    public void Play()
     {
         int numberOfSuccesses = 0;
 
-        for (int i = 0; i < numberOfExperiments; ++i)
+        for (int i = 0; i < _numberOfExperiments; ++i)
         {
-            if (Experiment.Execute(elon, mark, _deckShuffler, _numberOfCards))
+            if (_experiment.Execute(_elonMusk, _markZuckerberg, _deckShuffler, _numberOfCards))
             {
                 ++numberOfSuccesses;
             }
         }
 
-        PrintResults(numberOfExperiments, numberOfSuccesses);
+        PrintResults(_numberOfExperiments, numberOfSuccesses);
+
+        _appLifetime.StopApplication();
+    }
+
+    public Task StartAsync(CancellationToken cancellationToken)
+    {
+        Task.Run(Play, cancellationToken);
+        return Task.CompletedTask;
+    }
+
+    public Task StopAsync(CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
     }
 
     private static void PrintResults(int numberOfExperiments, int numberOfSuccesses)

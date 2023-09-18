@@ -1,11 +1,13 @@
-namespace StrategyInterface;
+namespace DeckShufllerInterface;
 
-public interface IDeckShuffler
+using StrategyInterface;
+
+public interface IDeckShufller
 {
     void ShuffleDeck(Deck deck);
 }
 
-public class DeckShuffler : IDeckShuffler
+public class DeckShufller : IDeckShufller
 {
     public void ShuffleDeck(Deck deck)
     {

@@ -1,9 +1,10 @@
+using DeckShufllerInterface;
 using StrategyInterface;
 
-public static class Experiment
+public class Experiment
 {
-    public static bool Execute(Opponent elon, Opponent mark,
-        IDeckShuffler deckShuffler, int numberOfCards)
+    public bool Execute(Opponent elon, Opponent mark,
+        IDeckShufller deckShuffler, int numberOfCards)
     {
         var deck = new Deck(numberOfCards);
 
