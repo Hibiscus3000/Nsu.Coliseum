@@ -10,7 +10,7 @@ public class Card
     public CardColor CardColor { get; }
     private readonly CardType _cardType;
     private readonly int _number; // number from 0 to 8 inclusive
-    
+
     public Card(CardType cardType, int number)
     {
         _cardType = cardType;
