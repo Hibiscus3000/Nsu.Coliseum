@@ -3,6 +3,7 @@ using StrategyInterface;
 public static class Gods
 {
     private static readonly int _numberOfCards = 36;
+    private static readonly IDeckShuffler _deckShuffler = new DeckShuffler();
 
     public static void Play(Opponent elon, Opponent mark, int numberOfExperiments)
     {
@@ -10,28 +11,13 @@ public static class Gods
 
         for (int i = 0; i < numberOfExperiments; ++i)
         {
-            if (OneExperiment(elon, mark))
+            if (Experiment.Execute(elon, mark, _deckShuffler, _numberOfCards))
             {
                 ++numberOfSuccesses;
             }
         }
 
         PrintResults(numberOfExperiments, numberOfSuccesses);
-    }
-
-    private static bool OneExperiment(Opponent elon, Opponent mark)
-    {
-        var deck = new Deck(_numberOfCards);
-
-        Card[][] splitedDeck = deck.Split(2);
-
-        Card[] elonDeck = splitedDeck[0];
-        Card[] markDeck = splitedDeck[1];
-
-        int elonCardNum = elon.UseStrategy(elonDeck);
-        int markCardNum = mark.UseStrategy(markDeck);
-
-        return elonDeck[markCardNum].CardColor == markDeck[elonCardNum].CardColor;
     }
 
     private static void PrintResults(int numberOfExperiments, int numberOfSuccesses)

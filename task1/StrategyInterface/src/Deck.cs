@@ -3,7 +3,7 @@ namespace StrategyInterface;
 public class Deck
 {
     private readonly int _numberOfCards;
-    private readonly Card[] _cards;
+    public readonly Card[] _cards;
 
     public Deck(int numberOfCards)
     {
@@ -18,21 +18,6 @@ public class Deck
                 _cards[(int)cardType * numberOfCardsInSuit + i] = new Card(cardType, i % numberOfCardsInSuit);
             }
         }
-
-        ShuffleDeck(_cards);
-    }
-
-    private static Card[] ShuffleDeck(Card[] cards)
-    {
-        int count = cards.Length;
-
-        while (count > 1)
-        {
-            int i = Random.Shared.Next(count--);
-            (cards[i], cards[count]) = (cards[count], cards[i]);
-        }
-
-        return cards;
     }
 
     public Card[][] Split(int numberOfGroups)
