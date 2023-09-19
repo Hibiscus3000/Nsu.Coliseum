@@ -1,3 +1,5 @@
+namespace Sandbox;
+
 using StrategyInterface;
 
 public abstract class Opponent

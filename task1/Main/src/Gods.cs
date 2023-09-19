@@ -1,10 +1,11 @@
+namespace Sandbox;
+
 using Microsoft.Extensions.Hosting;
 using DeckShufllerInterface;
 
 public class Gods : IHostedService
 {
-    private readonly int _numberOfCards = 36;
-    private readonly int _numberOfExperiments = 1_000_000;
+    private readonly IGodsConfig _godsConfig;
     private readonly ElonMusk _elonMusk;
     private readonly MarkZuckerberg _markZuckerberg;
 
@@ -13,9 +14,12 @@ public class Gods : IHostedService
 
     private readonly IHostApplicationLifetime _appLifetime;
 
-    public Gods(ElonMusk elonMusk, MarkZuckerberg markZuckerberg, Experiment experiment,
+
+    public Gods(IGodsConfig godsConfig, ElonMusk elonMusk, MarkZuckerberg markZuckerberg, Experiment experiment,
         IDeckShufller deckShufller, IHostApplicationLifetime applicationLifetime)
     {
+        _godsConfig = godsConfig;
+
         _elonMusk = elonMusk;
         _markZuckerberg = markZuckerberg;
         _experiment = experiment;
@@ -28,15 +32,15 @@ public class Gods : IHostedService
     {
         int numberOfSuccesses = 0;
 
-        for (int i = 0; i < _numberOfExperiments; ++i)
+        for (int i = 0; i < _godsConfig.NumberOfExperiments; ++i)
         {
-            if (_experiment.Execute(_elonMusk, _markZuckerberg, _deckShuffler, _numberOfCards))
+            if (_experiment.Execute(_elonMusk, _markZuckerberg, _deckShuffler, _godsConfig.NumberOfCardsInDeck))
             {
                 ++numberOfSuccesses;
             }
         }
 
-        PrintResults(_numberOfExperiments, numberOfSuccesses);
+        PrintResults(_godsConfig.NumberOfExperiments, numberOfSuccesses);
 
         _appLifetime.StopApplication();
     }
@@ -58,5 +62,24 @@ public class Gods : IHostedService
         Console.WriteLine("Number of successes: " + numberOfSuccesses);
         Console.WriteLine("Statistics: "
             + ((double)numberOfSuccesses * 100 / numberOfExperiments).ToString("N2") + "%");
+    }
+
+    public interface IGodsConfig
+    {
+        int NumberOfExperiments {get;}
+        int NumberOfCardsInDeck {get;}
+    }
+
+    public class DefaultGodsConfig : IGodsConfig
+    {
+        public int NumberOfExperiments {get;}
+
+        public int NumberOfCardsInDeck {get;}
+
+        public DefaultGodsConfig(int numberOfExperiments, int numberOfCardsInDeck)
+        {
+            NumberOfExperiments = numberOfExperiments;
+            NumberOfCardsInDeck = numberOfCardsInDeck;
+        }
     }
 }
