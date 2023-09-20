@@ -11,7 +11,7 @@ public class DeckShufller : IDeckShufller
 {
     public void ShuffleDeck(Deck deck)
     {
-        Card[] cards = deck._cards;
+        Card[] cards = deck.cards;
         int count = cards.Length;
 
         while (count > 1)
