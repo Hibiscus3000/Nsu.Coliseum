@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\StrategyInterface\StrategyInterface.csproj" />
     <ProjectReference Include="..\Strategy\Strategy.csproj" />
+    <ProjectReference Include="..\ReadExperiments\ReadExperiments.csproj"/>
   </ItemGroup>
 
   <ItemGroup>

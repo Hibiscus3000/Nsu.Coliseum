@@ -1,7 +1,5 @@
 namespace StrategyInterface.Test;
 
-using StrategyInterface;
-
 public class DeckTests
 {
     [Fact]
@@ -9,7 +7,7 @@ public class DeckTests
     {
         var numberOfCards = 36;
         var deck = new Deck(numberOfCards);
-        Card[] cards = deck.cards;
+        Card[] cards = deck.Cards;
 
         int numberOfRedCards = 0;
         int numberOfBlackCards = 0;
@@ -19,6 +17,7 @@ public class DeckTests
             {
                 ++numberOfRedCards;
             }
+
             if (CardColor.Black == card.CardColor)
             {
                 ++numberOfBlackCards;

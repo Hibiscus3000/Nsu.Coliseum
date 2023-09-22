@@ -1,43 +1,34 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using DeckShufflerInterface;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using DeckShufllerInterface;
-using Strategy;
 using Sandbox;
+using Strategy;
+using StrategyInterface;
 
-class Program
+public class Program
 {
-
     public static void Main(string[] args)
     {
         CreateHostBuilder(args).Build().Run();
     }
 
-    public static IHostBuilder CreateHostBuilder(string[] args) => Host.CreateDefaultBuilder(args)
+    private static IHostBuilder CreateHostBuilder(string[] args)
+    {
+        int numberOfCards =
+            args.Length >= 2 && int.TryParse(args[1], out int result) ? result : 36;
+        int numberOfExperiments =
+            args.Length >= 1 && int.TryParse(args[0], out result) ? result : 1_000_000;
+
+        return Host.CreateDefaultBuilder(args)
             .ConfigureServices((_, services) =>
             {
                 services.AddHostedService<Gods>();
-                services.AddScoped<Gods.IGodsConfig, Gods.DefaultGodsConfig>(provider => {
-                    int numberOfExperiments;
-                    int numberOfCards;
-
-                    if (args.Length >= 1) 
-                    {
-                        int.TryParse(args[0], out numberOfExperiments);   
-                        if (args.Length >= 2)
-                        {
-                            int.TryParse(args[1], out numberOfCards);
-                        }
-                    }
-
-                    // defaults
-                    numberOfExperiments = 1_000_000;
-                    numberOfCards = 36;
-
-                    return new(numberOfExperiments, numberOfCards);
-                });
-                services.AddScoped<Experiment>();
-                services.AddScoped<IDeckShufller, DeckShufller>();
-                services.AddScoped<ElonMusk>(provider => new(new ZeroStrategy()));
-                services.AddScoped<MarkZuckerberg>(provider => new(new ZeroStrategy()));
+                services.AddScoped<ExperimentRunner>();
+                services.AddScoped<IDeckProvider, RandomDeckProvider>(_ => new RandomDeckProvider(
+                    numberOfExperiments, numberOfCards, new DeckShuffler()));
+                // services.AddScoped<IDeckProvider, DBDeckProvider>();
+                services.AddScoped<ElonMusk>(_ => new(new ZeroStrategy()));
+                services.AddScoped<MarkZuckerberg>(_ => new(new ZeroStrategy()));
             });
     }
+}

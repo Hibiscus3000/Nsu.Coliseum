@@ -1,46 +1,48 @@
-namespace Sandbox;
-
 using Microsoft.Extensions.Hosting;
-using DeckShufllerInterface;
+using StrategyInterface;
+
+namespace Sandbox;
 
 public class Gods : IHostedService
 {
-    private readonly IGodsConfig _godsConfig;
     private readonly ElonMusk _elonMusk;
     private readonly MarkZuckerberg _markZuckerberg;
 
-    private readonly Experiment _experiment;
-    private readonly IDeckShufller _deckShuffler;
+    private readonly ExperimentRunner _experimentRunner;
+    private readonly IDeckProvider _deckProvider;
 
     private readonly IHostApplicationLifetime _appLifetime;
 
 
-    public Gods(IGodsConfig godsConfig, ElonMusk elonMusk, MarkZuckerberg markZuckerberg, Experiment experiment,
-        IDeckShufller deckShufller, IHostApplicationLifetime applicationLifetime)
+    public Gods(ElonMusk elonMusk, MarkZuckerberg markZuckerberg, ExperimentRunner experimentRunner,
+        IDeckProvider deckProvider, IHostApplicationLifetime applicationLifetime)
     {
-        _godsConfig = godsConfig;
-
         _elonMusk = elonMusk;
         _markZuckerberg = markZuckerberg;
-        _experiment = experiment;
-        _deckShuffler = deckShufller;
+        _experimentRunner = experimentRunner;
+        _deckProvider = deckProvider;
 
         _appLifetime = applicationLifetime;
     }
 
-    public void Play()
+    private void Play()
     {
         int numberOfSuccesses = 0;
+        int numberOfExperiments = 0;
 
-        for (int i = 0; i < _godsConfig.NumberOfExperiments; ++i)
+        Deck? deck;
+
+        while (null != (deck = _deckProvider.GetDeck()))
         {
-            if (_experiment.Execute(_elonMusk, _markZuckerberg, _deckShuffler, _godsConfig.NumberOfCardsInDeck))
+            if (_experimentRunner.Execute(_elonMusk, _markZuckerberg, deck))
             {
                 ++numberOfSuccesses;
             }
+
+            ++numberOfExperiments;
         }
 
-        PrintResults(_godsConfig.NumberOfExperiments, numberOfSuccesses);
+        PrintResults(numberOfExperiments, numberOfSuccesses);
 
         _appLifetime.StopApplication();
     }
@@ -61,25 +63,6 @@ public class Gods : IHostedService
         Console.WriteLine("Number of experiments: " + numberOfExperiments);
         Console.WriteLine("Number of successes: " + numberOfSuccesses);
         Console.WriteLine("Statistics: "
-            + ((double)numberOfSuccesses * 100 / numberOfExperiments).ToString("N2") + "%");
-    }
-
-    public interface IGodsConfig
-    {
-        int NumberOfExperiments {get;}
-        int NumberOfCardsInDeck {get;}
-    }
-
-    public class DefaultGodsConfig : IGodsConfig
-    {
-        public int NumberOfExperiments {get;}
-
-        public int NumberOfCardsInDeck {get;}
-
-        public DefaultGodsConfig(int numberOfExperiments, int numberOfCardsInDeck)
-        {
-            NumberOfExperiments = numberOfExperiments;
-            NumberOfCardsInDeck = numberOfCardsInDeck;
-        }
+                          + ((double)numberOfSuccesses * 100 / numberOfExperiments).ToString("N2") + "%");
     }
 }

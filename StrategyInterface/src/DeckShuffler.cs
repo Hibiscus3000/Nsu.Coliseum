@@ -1,17 +1,17 @@
-namespace DeckShufllerInterface;
-
 using StrategyInterface;
 
-public interface IDeckShufller
+namespace DeckShufflerInterface;
+
+public interface IDeckShuffler
 {
     void ShuffleDeck(Deck deck);
 }
 
-public class DeckShufller : IDeckShufller
+public class DeckShuffler : IDeckShuffler
 {
     public void ShuffleDeck(Deck deck)
     {
-        Card[] cards = deck.cards;
+        Card[] cards = deck.Cards;
         int count = cards.Length;
 
         while (count > 1)

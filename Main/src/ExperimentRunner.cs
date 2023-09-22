@@ -1,17 +1,11 @@
-namespace Sandbox;
-
-using DeckShufllerInterface;
 using StrategyInterface;
 
-public class Experiment
+namespace Sandbox;
+
+public class ExperimentRunner
 {
-    public bool Execute(Opponent elon, Opponent mark,
-        IDeckShufller deckShuffler, int numberOfCards)
+    public bool Execute(Opponent elon, Opponent mark, Deck deck)
     {
-        var deck = new Deck(numberOfCards);
-
-        deckShuffler.ShuffleDeck(deck);
-
         Card[][] splitedDeck = deck.Split(2);
 
         Card[] elonDeck = splitedDeck[0];

@@ -1,13 +1,12 @@
-namespace Main.Test;
-
-using DeckShufllerInterface;
+using DeckShufflerInterface;
 using Moq;
 using Sandbox;
 using StrategyInterface;
 
+namespace Main.Test;
+
 public class ExperimentTests
 {
-
     private readonly Mock<IStrategy> _elonStrategyStub = new();
     private readonly Mock<IStrategy> _markStrategyStub = new();
     private readonly ElonMusk _elon;
@@ -15,9 +14,9 @@ public class ExperimentTests
 
     private readonly int _numberOfCards = 36;
 
-    private readonly Experiment sut = new Experiment();
+    private readonly ExperimentRunner _sut = new ExperimentRunner();
 
-    private readonly Mock<IDeckShufller> _deckShufllerStub = new();
+    private readonly Mock<IDeckShuffler> _deckShufflerStub = new();
 
     public ExperimentTests()
     {
@@ -25,26 +24,24 @@ public class ExperimentTests
         _markStrategyStub.Setup(m => m.PickCard(It.IsAny<Card[]>())).Returns(0);
         _elon = new(_elonStrategyStub.Object);
         _mark = new(_markStrategyStub.Object);
-
-        sut = new Experiment();
     }
 
     [Fact]
-    public void Experiment_Execute_ShuflleDeckCalledOneTime()
+    public void Experiment_Execute_ShuffleDeckCalledOneTime()
     {
-        var deckShufllerMock = new Mock<IDeckShufller>();
-        deckShufllerMock.Setup(m => m.ShuffleDeck(It.IsAny<Deck>()));
+        var deckShufflerMock = new Mock<IDeckShuffler>();
+        deckShufflerMock.Setup(m => m.ShuffleDeck(It.IsAny<Deck>()));
 
 
-        sut.Execute(_elon, _mark, deckShufllerMock.Object, _numberOfCards);
+        _sut.Execute(_elon, _mark,
+            new RandomDeckProvider(1, _numberOfCards, deckShufflerMock.Object).GetDeck());
 
-
-        deckShufllerMock.Verify(m => m.ShuffleDeck(It.IsAny<Deck>()), Times.Once);
+        deckShufflerMock.Verify(m => m.ShuffleDeck(It.IsAny<Deck>()), Times.Once);
     }
 
     private void PredifinedDeckShuflle(Deck deck)
     {
-        Card[] cards = deck.cards;
+        Card[] cards = deck.Cards;
         var numberOfSuits = Enum.GetValues(typeof(CardType)).Length;
         var numberOfCardsInSuit = _numberOfCards / Enum.GetValues(typeof(CardType)).Length;
         for (int i = 0; i < numberOfCardsInSuit; ++i)
@@ -59,22 +56,24 @@ public class ExperimentTests
     [Fact]
     public void Experiment_Execute_ReturnsFalse()
     {
-        _deckShufllerStub.Setup(m => m.ShuffleDeck(It.IsAny<Deck>()))
+        _deckShufflerStub.Setup(m => m.ShuffleDeck(It.IsAny<Deck>()))
             .Callback((Deck deck) => PredifinedDeckShuflle(deck));
-        Assert.False(sut.Execute(_elon, _mark, _deckShufllerStub.Object, _numberOfCards));
+        Assert.False(_sut.Execute(_elon, _mark,
+            new RandomDeckProvider(1, _numberOfCards, _deckShufflerStub.Object).GetDeck()));
     }
 
     [Fact]
     public void Experiment_Execute_ReturnsTrue()
     {
-        _deckShufllerStub.Setup(m => m.ShuffleDeck(It.IsAny<Deck>()))
+        _deckShufflerStub.Setup(m => m.ShuffleDeck(It.IsAny<Deck>()))
             .Callback((Deck deck) =>
             {
                 PredifinedDeckShuflle(deck);
-                Card[] cards = deck.cards;
+                Card[] cards = deck.Cards;
                 (cards[18], cards[19]) = (cards[19], cards[18]);
             });
 
-        Assert.True(sut.Execute(_elon, _mark, _deckShufllerStub.Object, _numberOfCards));
+        Assert.True(_sut.Execute(_elon, _mark,
+            new RandomDeckProvider(1, _numberOfCards, _deckShufflerStub.Object).GetDeck()));
     }
 }
