@@ -5,8 +5,8 @@ namespace Sandbox;
 
 public class Gods : IHostedService
 {
-    private readonly ElonMusk _elonMusk;
-    private readonly MarkZuckerberg _markZuckerberg;
+    private readonly Opponent _elonMusk;
+    private readonly Opponent _markZuckerberg;
 
     private readonly ExperimentRunner _experimentRunner;
     private readonly IDeckProvider _deckProvider;
@@ -14,11 +14,11 @@ public class Gods : IHostedService
     private readonly IHostApplicationLifetime _appLifetime;
 
 
-    public Gods(ElonMusk elonMusk, MarkZuckerberg markZuckerberg, ExperimentRunner experimentRunner,
+    public Gods(IOpponentResolver opponentResolver, ExperimentRunner experimentRunner,
         IDeckProvider deckProvider, IHostApplicationLifetime applicationLifetime)
     {
-        _elonMusk = elonMusk;
-        _markZuckerberg = markZuckerberg;
+        _elonMusk = opponentResolver.CreateOpponent(OpponentType.Elon);
+        _markZuckerberg = opponentResolver.CreateOpponent(OpponentType.Mark);
         _experimentRunner = experimentRunner;
         _deckProvider = deckProvider;
 

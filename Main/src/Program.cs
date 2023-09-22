@@ -23,12 +23,18 @@ public class Program
             .ConfigureServices((_, services) =>
             {
                 services.AddHostedService<Gods>();
+
                 services.AddScoped<ExperimentRunner>();
                 services.AddScoped<IDeckProvider, RandomDeckProvider>(_ => new RandomDeckProvider(
                     numberOfExperiments, numberOfCards, new DeckShuffler()));
-                // services.AddScoped<IDeckProvider, DBDeckProvider>();
-                services.AddScoped<ElonMusk>(_ => new(new ZeroStrategy()));
-                services.AddScoped<MarkZuckerberg>(_ => new(new ZeroStrategy()));
+                //services.AddScoped<IDeckProvider, DBDeckProvider>(_ => new DBDeckProvider(50));
+
+                services.AddSingleton<IOpponentResolver, OpponentResolver>(_ => new OpponentResolver(
+                    new Dictionary<OpponentType, IStrategy>
+                    {
+                        [OpponentType.Elon] = new ZeroStrategy(),
+                        [OpponentType.Mark] = new ZeroStrategy(),
+                    }));
             });
     }
 }
