@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Nsu.Coliseum.StrategyInterface\Nsu.Coliseum.StrategyInterface.csproj"/>
+  </ItemGroup>
+
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Nsu.Coliseum.Strategies</RootNamespace>
+  </PropertyGroup>
+
+</Project>
