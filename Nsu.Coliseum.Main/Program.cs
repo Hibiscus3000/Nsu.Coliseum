@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Nsu.Coliseum.Database;
 using Nsu.Coliseum.Deck;
 using Nsu.Coliseum.Sandbox;
 using Nsu.Coliseum.Strategies;
@@ -27,10 +28,10 @@ public class Program
                 services.AddHostedService<Gods>();
                 services.AddScoped<ExperimentRunner>();
 
-                services.AddScoped<IDeckProvider, RandomDeckProvider>(_ => new RandomDeckProvider(
-                    numberOfExperiments, numberOfCards, new DeckShuffler()));
+                // services.AddScoped<IDeckProvider, RandomDeckProvider>(_ => new RandomDeckProvider(
+                //     numberOfExperiments, numberOfCards, new DeckShuffler()));
 
-                // services.AddScoped<IDeckProvider, DBDeckProvider>(_ => new DBDeckProvider(50));
+                services.AddScoped<IDeckProvider, DbDeckProvider>(_ => new DbDeckProvider(50));
 
                 services.AddSingleton<IOpponentResolver, OpponentResolver>(_ => new OpponentResolver(
                     new Dictionary<OpponentType, IStrategy>
