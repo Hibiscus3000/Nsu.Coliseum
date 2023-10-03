@@ -27,7 +27,6 @@ public class Program
             {
                 services.AddHostedService<Gods>();
                 services.AddScoped<ExperimentRunner>();
-
                 // services.AddScoped<IDeckProvider, RandomDeckProvider>(_ => new RandomDeckProvider(
                 //     numberOfExperiments, numberOfCards, new DeckShuffler()));
 
