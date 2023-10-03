@@ -26,7 +26,7 @@ public class ExperimentTests
     }
 
     [Fact]
-    public void Experiment_Execute_ShuffleDeckCalledOneTime()
+    public void Execute_ShuffleDeckCalledOneTime()
     {
         var deckShufflerMock = new Mock<IDeckShuffler>();
         deckShufflerMock.Setup(m => m.ShuffleDeck(It.IsAny<Deck.Deck>()));
@@ -53,7 +53,7 @@ public class ExperimentTests
     }
 
     [Fact]
-    public void Experiment_Execute_ReturnsFalse()
+    public void Execute_LoosingDeckProvided_ReturnsFalse()
     {
         _deckShufflerStub.Setup(m => m.ShuffleDeck(It.IsAny<Deck.Deck>()))
             .Callback((Deck.Deck deck) => PredifinedDeckShuflle(deck));
@@ -62,7 +62,7 @@ public class ExperimentTests
     }
 
     [Fact]
-    public void Experiment_Execute_ReturnsTrue()
+    public void Execute_WinningDeckProvided_ReturnsTrue()
     {
         _deckShufflerStub.Setup(m => m.ShuffleDeck(It.IsAny<Deck.Deck>()))
             .Callback((Deck.Deck deck) =>

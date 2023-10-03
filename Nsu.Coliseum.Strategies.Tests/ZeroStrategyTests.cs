@@ -3,7 +3,7 @@ namespace Nsu.Coliseum.Strategies.Tests;
 public class ZeroStrategyTests
 {
     [Fact]
-    public void ZeroStrategy_PickCard_ReturnsZero()
+    public void PickCard_AnyDeck_ReturnsZero()
     {
         var zeroStrategy = new ZeroStrategy();
         var deck = new Deck.Deck(36);

@@ -3,7 +3,7 @@ namespace Nsu.Coliseum.Deck.Tests;
 public class DeckTests
 {
     [Fact]
-    public void Deck_constructor_18Black18RedCards()
+    public void Constructor_18Black18RedCards()
     {
         var numberOfCards = 36;
         var deck = new Deck(numberOfCards);
