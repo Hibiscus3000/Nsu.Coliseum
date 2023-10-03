@@ -11,22 +11,18 @@ public class Program
     {
         int numberOfExperiments = args.Length >= 1 && int.TryParse(args[0], out int result) ? result : 100;
 
-        var deckShuffler = new DeckShuffler();
+        var deckProvider = new RandomDeckProvider(numberOfExperiments, NumberOfCards, new DeckShuffler());
 
-        using (var appContext = new ApplicationContext())
+        using var appContext = new ApplicationContext();
+        for (int i = 0; i < numberOfExperiments; ++i)
         {
-            for (int i = 0; i < numberOfExperiments; ++i)
+            var experimentEntity = new ExperimentEntity
             {
-                var deck = new Deck.Deck(NumberOfCards);
-                deckShuffler.ShuffleDeck(deck);
-                var experimentEntity = new ExperimentEntity
-                {
-                    Deck = deck
-                };
-                appContext.Experiments.Add(experimentEntity);
-            }
-
-            appContext.SaveChanges();
+                Deck = deckProvider.GetDeck()
+            };
+            appContext.Experiments.Add(experimentEntity);
         }
+
+        appContext.SaveChanges();
     }
 }

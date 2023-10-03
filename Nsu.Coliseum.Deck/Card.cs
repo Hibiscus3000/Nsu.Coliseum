@@ -33,6 +33,10 @@ public class Card
         };
     }
 
+    public Card(Card card) : this(card._cardType, card._number)
+    {
+    }
+
     public static Card String2Card(string stringRepresentation)
     {
         CardType cardType = stringRepresentation[^1] switch
@@ -76,6 +80,24 @@ public class Card
         CardType.Heart => HeartSym,
         CardType.Spade => SpadeSym,
     };
+
+    protected bool Equals(Card other)
+    {
+        return _cardType == other._cardType && _number == other._number;
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (ReferenceEquals(null, obj)) return false;
+        if (ReferenceEquals(this, obj)) return true;
+        if (obj.GetType() != GetType()) return false;
+        return Equals((Card)obj);
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine((int)_cardType, _number);
+    }
 }
 
 public enum CardType

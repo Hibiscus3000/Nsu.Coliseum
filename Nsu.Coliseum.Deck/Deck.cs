@@ -25,6 +25,16 @@ public class Deck
         Cards = cards;
     }
 
+    public Deck(Deck other)
+    {
+        Card[] otherCards = other.Cards;
+        Cards = new Card[otherCards.Length];
+        for (int i = 0; i < Cards.Length; ++i)
+        {
+            Cards[i] = new Card(otherCards[i]);
+        }
+    }
+
     public Deck(string stringRepresentation, string separator = ";")
     {
         Cards = Array.ConvertAll(stringRepresentation.Split(separator), Card.String2Card);
@@ -48,6 +58,33 @@ public class Deck
         }
 
         return splited;
+    }
+
+    protected bool Equals(Deck other)
+    {
+        if (Cards.Length != other.Cards.Length) return false;
+
+        int numberOfCards = Cards.Length;
+
+        for (int i = 0; i < numberOfCards; ++i)
+        {
+            if (!Cards[i].Equals(other.Cards[i])) return false;
+        }
+
+        return true;
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (ReferenceEquals(null, obj)) return false;
+        if (ReferenceEquals(this, obj)) return true;
+        if (obj.GetType() != GetType()) return false;
+        return Equals((Deck)obj);
+    }
+
+    public override int GetHashCode()
+    {
+        return Cards.GetHashCode();
     }
 
     public string ToString(string separator) => string.Join(separator, Cards.Select(c => c.ToString()).ToArray());

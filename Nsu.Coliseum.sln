@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nsu.Coliseum.Deck", "Nsu.Co
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nsu.Coliseum.Sandbox", "Nsu.Coliseum.Sandbox\Nsu.Coliseum.Sandbox.csproj", "{537F784B-EE09-4F8F-96FC-5E9220DDBA6A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nsu.Coliseum.Database.Tests", "Nsu.Coliseum.Database.Tests\Nsu.Coliseum.Database.Tests.csproj", "{E40FA612-54BD-4BC0-8741-B4BC30C70CA9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -72,5 +74,9 @@ Global
 		{537F784B-EE09-4F8F-96FC-5E9220DDBA6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{537F784B-EE09-4F8F-96FC-5E9220DDBA6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{537F784B-EE09-4F8F-96FC-5E9220DDBA6A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E40FA612-54BD-4BC0-8741-B4BC30C70CA9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E40FA612-54BD-4BC0-8741-B4BC30C70CA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E40FA612-54BD-4BC0-8741-B4BC30C70CA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E40FA612-54BD-4BC0-8741-B4BC30C70CA9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
