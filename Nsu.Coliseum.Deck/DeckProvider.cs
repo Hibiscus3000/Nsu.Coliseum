@@ -12,10 +12,10 @@ public class RandomDeckProvider : IDeckProvider
 
     private int _numberOfDecks;
 
-    public RandomDeckProvider(int numberOfDecks, int numberOfCards, IDeckShuffler deckShuffler)
+    public RandomDeckProvider(int numberOfDecks, int numberOfCards = 36, IDeckShuffler? deckShuffler = null)
     {
         _numberOfCards = numberOfCards;
-        _deckShuffler = deckShuffler;
+        _deckShuffler = deckShuffler ?? new DeckShuffler();
 
         _numberOfDecks = numberOfDecks;
     }

@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Nsu.Coliseum.Database\Nsu.Coliseum.Database.csproj"/>
+      <ProjectReference Include="..\Nsu.Coliseum.OpponentWebAPI\Nsu.Coliseum.OpponentWebAPI.csproj"/>
     <ProjectReference Include="..\Nsu.Coliseum.Sandbox\Nsu.Coliseum.Sandbox.csproj"/>
     <ProjectReference Include="..\Nsu.Coliseum.StrategyInterface\Nsu.Coliseum.StrategyInterface.csproj"/>
     <ProjectReference Include="..\Nsu.Coliseum.Strategies\Nsu.Coliseum.Strategies.csproj"/>

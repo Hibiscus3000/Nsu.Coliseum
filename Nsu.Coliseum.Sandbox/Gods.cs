@@ -6,8 +6,7 @@ namespace Nsu.Coliseum.Sandbox;
 
 public class Gods : IHostedService
 {
-    private readonly Opponent _elonMusk;
-    private readonly Opponent _markZuckerberg;
+    private readonly IOpponents _opponents;
 
     private readonly ExperimentRunner _experimentRunner;
     private readonly IDeckProvider _deckProvider;
@@ -16,14 +15,14 @@ public class Gods : IHostedService
 
     private readonly ILogger<Gods> _logger;
 
-    public Gods(IOpponentResolver opponentResolver,
+    public Gods(IOpponents opponents,
         ExperimentRunner experimentRunner,
         IDeckProvider deckProvider,
         IHostApplicationLifetime applicationLifetime,
         ILogger<Gods> logger)
     {
-        _elonMusk = opponentResolver.CreateOpponent(OpponentType.Elon);
-        _markZuckerberg = opponentResolver.CreateOpponent(OpponentType.Mark);
+        _opponents = opponents;
+
         _experimentRunner = experimentRunner;
         _deckProvider = deckProvider;
 
@@ -42,7 +41,7 @@ public class Gods : IHostedService
 
         while (null != (deck = _deckProvider.GetDeck()))
         {
-            if (_experimentRunner.Execute(_elonMusk, _markZuckerberg, deck))
+            if (_experimentRunner.Execute(_opponents, deck))
             {
                 ++numberOfSuccesses;
             }
@@ -52,7 +51,7 @@ public class Gods : IHostedService
 
         _logger.LogDebug("Finished experiments");
 
-        PrintResults(numberOfExperiments, numberOfSuccesses);
+        LogResults(numberOfExperiments, numberOfSuccesses);
 
         _appLifetime.StopApplication();
     }
@@ -68,7 +67,7 @@ public class Gods : IHostedService
         return Task.CompletedTask;
     }
 
-    private void PrintResults(int numberOfExperiments, int numberOfSuccesses)
+    private void LogResults(int numberOfExperiments, int numberOfSuccesses)
     {
         _logger.LogInformation("Number of experiments: " + numberOfExperiments +
                                ". Number of successes: " + numberOfSuccesses + ". Statistics: " +

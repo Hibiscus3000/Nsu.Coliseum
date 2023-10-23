@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Nsu.Coliseum.Deck;
 
 public class Card
@@ -9,19 +11,20 @@ public class Card
 
 
     public CardColor CardColor { get; }
-    private readonly CardType _cardType;
-    private readonly int _number; // number from 0 to 8 inclusive
+    public CardType CardType { get; }
+    public int Number { get; } // number from 0 to 8 inclusive
 
+    [JsonConstructor]
     public Card(CardType cardType, int number)
     {
-        _cardType = cardType;
+        CardType = cardType;
 
         if (number < 0 || number > 8)
         {
             throw new ArgumentOutOfRangeException("card number should be a number from 0 to 8 inclusive");
         }
 
-        _number = number;
+        Number = number;
 
         CardColor = cardType switch
         {
@@ -33,7 +36,7 @@ public class Card
         };
     }
 
-    public Card(Card card) : this(card._cardType, card._number)
+    public Card(Card card) : this(card.CardType, card.Number)
     {
     }
 
@@ -62,7 +65,7 @@ public class Card
         return new(cardType, number);
     }
 
-    public override string ToString() => _number switch
+    public override string ToString() => Number switch
     {
         0 => " 6",
         1 => " 7",
@@ -73,7 +76,7 @@ public class Card
         6 => " Q",
         7 => " K",
         8 => " A",
-    } + _cardType switch
+    } + CardType switch
     {
         CardType.Club => ClubSym,
         CardType.Diamond => DiamondSym,
@@ -83,7 +86,7 @@ public class Card
 
     protected bool Equals(Card other)
     {
-        return _cardType == other._cardType && _number == other._number;
+        return CardType == other.CardType && Number == other.Number;
     }
 
     public override bool Equals(object? obj)
@@ -96,7 +99,7 @@ public class Card
 
     public override int GetHashCode()
     {
-        return HashCode.Combine((int)_cardType, _number);
+        return HashCode.Combine((int)CardType, Number);
     }
 }
 

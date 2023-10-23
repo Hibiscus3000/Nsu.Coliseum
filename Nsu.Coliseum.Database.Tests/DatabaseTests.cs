@@ -6,6 +6,8 @@ namespace Nsu.Coliseum.Database.Tests;
 
 public class DatabaseTests : IDisposable
 {
+    private bool disposed = false;
+
     private readonly SqliteConnection _connection;
     private readonly DbContextOptions _contextOptions;
 
@@ -14,18 +16,34 @@ public class DatabaseTests : IDisposable
         _connection = new SqliteConnection("Filename=:memory:");
         _connection.Open();
 
-        _contextOptions = new DbContextOptionsBuilder<ApplicationContext>()
+        _contextOptions = new DbContextOptionsBuilder<ExperimentsContext>()
             .UseSqlite(_connection)
             .Options;
     }
 
-    private ApplicationContext CreateContext() => new(_contextOptions);
+    ~DatabaseTests()
+    {
+        Dispose(false);
+    }
+
+    private ExperimentsContext CreateContext() => new(_contextOptions);
 
     private IDeckProvider CreateDeckProvider(int numberOfDecks) => new RandomDeckProvider(numberOfDecks: numberOfDecks,
         numberOfCards: 36,
         new DeckShuffler());
 
-    public void Dispose() => _connection.Dispose();
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposed) return;
+        if (disposing) _connection.Dispose();
+        disposed = true;
+    }
 
     [Fact]
     public void AddThreeExperiments_ThreeExperimentsRead()

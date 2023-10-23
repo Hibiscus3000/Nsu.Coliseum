@@ -6,10 +6,7 @@ namespace Nsu.Coliseum.Sandbox.Tests;
 
 public class ExperimentTests
 {
-    private readonly Mock<IStrategy> _elonStrategyStub = new();
-    private readonly Mock<IStrategy> _markStrategyStub = new();
-    private readonly ElonMusk _elon;
-    private readonly MarkZuckerberg _mark;
+    private readonly IOpponents _opponents;
 
     private const int NumberOfCards = 36;
 
@@ -19,10 +16,17 @@ public class ExperimentTests
 
     public ExperimentTests()
     {
-        _elonStrategyStub.Setup(m => m.PickCard(It.IsAny<Card[]>())).Returns(0);
-        _markStrategyStub.Setup(m => m.PickCard(It.IsAny<Card[]>())).Returns(0);
-        _elon = new(_elonStrategyStub.Object);
-        _mark = new(_markStrategyStub.Object);
+        Mock<IStrategy> elonStrategyStub = new();
+        Mock<IStrategy> markStrategyStub = new();
+        elonStrategyStub.Setup(m => m.PickCard(It.IsAny<Card[]>())).Returns(0);
+        markStrategyStub.Setup(m => m.PickCard(It.IsAny<Card[]>())).Returns(0);
+        var strategyResolver = new StrategyResolver(new Dictionary<OpponentType, IStrategy>
+        {
+            [OpponentType.Elon] = elonStrategyStub.Object,
+            [OpponentType.Mark] = markStrategyStub.Object
+        });
+
+        _opponents = new Opponents(strategyResolver);
     }
 
     [Fact]
@@ -32,7 +36,7 @@ public class ExperimentTests
         deckShufflerMock.Setup(m => m.ShuffleDeck(It.IsAny<Deck.Deck>()));
 
 
-        _sut.Execute(_elon, _mark,
+        _sut.Execute(_opponents,
             new RandomDeckProvider(1, NumberOfCards, deckShufflerMock.Object).GetDeck());
 
         deckShufflerMock.Verify(m => m.ShuffleDeck(It.IsAny<Deck.Deck>()), Times.Once);
@@ -57,7 +61,7 @@ public class ExperimentTests
     {
         _deckShufflerStub.Setup(m => m.ShuffleDeck(It.IsAny<Deck.Deck>()))
             .Callback((Deck.Deck deck) => PredifinedDeckShuflle(deck));
-        Assert.False(_sut.Execute(_elon, _mark,
+        Assert.False(_sut.Execute(_opponents,
             new RandomDeckProvider(1, NumberOfCards, _deckShufflerStub.Object).GetDeck()));
     }
 
@@ -72,7 +76,7 @@ public class ExperimentTests
                 (cards[18], cards[19]) = (cards[19], cards[18]);
             });
 
-        Assert.True(_sut.Execute(_elon, _mark,
+        Assert.True(_sut.Execute(_opponents,
             new RandomDeckProvider(1, NumberOfCards, _deckShufflerStub.Object).GetDeck()));
     }
 }

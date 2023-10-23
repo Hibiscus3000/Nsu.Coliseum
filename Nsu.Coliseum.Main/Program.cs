@@ -1,10 +1,10 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Nsu.Coliseum.Database;
 using Nsu.Coliseum.Deck;
 using Nsu.Coliseum.Sandbox;
 using Nsu.Coliseum.Strategies;
 using Nsu.Coliseum.StrategyInterface;
+using OpponentWepAPI;
 
 namespace Nsu.Coliseum.Main;
 
@@ -27,17 +27,20 @@ public class Program
             {
                 services.AddHostedService<Gods>();
                 services.AddScoped<ExperimentRunner>();
-                // services.AddScoped<IDeckProvider, RandomDeckProvider>(_ => new RandomDeckProvider(
-                //     numberOfExperiments, numberOfCards, new DeckShuffler()));
+                services.AddScoped<IDeckProvider, RandomDeckProvider>(_ => new RandomDeckProvider(
+                    numberOfExperiments, numberOfCards, new DeckShuffler()));
 
-                services.AddScoped<IDeckProvider, DbDeckProvider>(_ => new DbDeckProvider(50));
+                IStrategyResolver strategyResolver = new StrategyResolver(new Dictionary<OpponentType, IStrategy>
+                {
+                    [OpponentType.Elon] = new ZeroStrategy(),
+                    [OpponentType.Mark] = new ZeroStrategy(),
+                });
 
-                services.AddSingleton<IOpponentResolver, OpponentResolver>(_ => new OpponentResolver(
-                    new Dictionary<OpponentType, IStrategy>
-                    {
-                        [OpponentType.Elon] = new ZeroStrategy(),
-                        [OpponentType.Mark] = new ZeroStrategy(),
-                    }));
+                // services.AddScoped<IDeckProvider, DbDeckProvider>(_ => new DbDeckProvider(50));
+
+                // services.AddSingleton<IOpponents, Opponents>(_ => new Opponents(strategyResolver));
+
+                services.AddSingleton<IOpponents, WebOpponents>(_ => new WebOpponents(strategyResolver));
             });
     }
 }

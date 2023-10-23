@@ -13,7 +13,7 @@ public class Program
 
         var deckProvider = new RandomDeckProvider(numberOfExperiments, NumberOfCards, new DeckShuffler());
 
-        using var appContext = new ApplicationContext();
+        using var appContext = new ExperimentsContext();
         for (int i = 0; i < numberOfExperiments; ++i)
         {
             var experimentEntity = new ExperimentEntity

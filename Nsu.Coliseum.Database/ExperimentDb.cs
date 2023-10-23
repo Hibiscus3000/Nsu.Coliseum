@@ -18,20 +18,29 @@ public class ExperimentEntity
         get => new(StringRepresentation, Separator);
         set => StringRepresentation = value.ToString(Separator);
     }
+
+    public ExperimentEntity()
+    {
+    }
+
+    public ExperimentEntity(Deck.Deck deck)
+    {
+        Deck = deck;
+    }
 }
 
-public class ApplicationContext : DbContext
+public class ExperimentsContext : DbContext
 {
     public DbSet<ExperimentEntity> Experiments => Set<ExperimentEntity>();
 
     private readonly string _connectionString;
 
-    public ApplicationContext(DbContextOptions options) : base(options)
+    public ExperimentsContext(DbContextOptions options) : base(options)
     {
         Database.EnsureCreated();
     }
 
-    public ApplicationContext()
+    public ExperimentsContext()
     {
         string projectPath = GetProjectPath();
         var builder = new ConfigurationBuilder();

@@ -25,6 +25,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nsu.Coliseum.Sandbox", "Nsu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nsu.Coliseum.Database.Tests", "Nsu.Coliseum.Database.Tests\Nsu.Coliseum.Database.Tests.csproj", "{E40FA612-54BD-4BC0-8741-B4BC30C70CA9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nsu.Coliseum.OpponentWebAPI", "Nsu.Coliseum.OpponentWebAPI\Nsu.Coliseum.OpponentWebAPI.csproj", "{DC4D463D-2E43-49CF-B8D6-C9D9A7C24CDA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApplication1", "WebApplication1\WebApplication1.csproj", "{9EA8C9C7-B4A9-4B74-8B77-E3B5C382C11B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -78,5 +82,13 @@ Global
 		{E40FA612-54BD-4BC0-8741-B4BC30C70CA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E40FA612-54BD-4BC0-8741-B4BC30C70CA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E40FA612-54BD-4BC0-8741-B4BC30C70CA9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC4D463D-2E43-49CF-B8D6-C9D9A7C24CDA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC4D463D-2E43-49CF-B8D6-C9D9A7C24CDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC4D463D-2E43-49CF-B8D6-C9D9A7C24CDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC4D463D-2E43-49CF-B8D6-C9D9A7C24CDA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9EA8C9C7-B4A9-4B74-8B77-E3B5C382C11B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9EA8C9C7-B4A9-4B74-8B77-E3B5C382C11B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9EA8C9C7-B4A9-4B74-8B77-E3B5C382C11B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9EA8C9C7-B4A9-4B74-8B77-E3B5C382C11B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
