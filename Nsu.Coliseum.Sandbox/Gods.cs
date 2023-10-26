@@ -8,7 +8,7 @@ public class Gods : IHostedService
 {
     private readonly IOpponents _opponents;
 
-    private readonly ExperimentRunner _experimentRunner;
+    private readonly IExperimentRunner _experimentRunner;
     private readonly IDeckProvider _deckProvider;
 
     private readonly IHostApplicationLifetime _appLifetime;
@@ -16,7 +16,7 @@ public class Gods : IHostedService
     private readonly ILogger<Gods> _logger;
 
     public Gods(IOpponents opponents,
-        ExperimentRunner experimentRunner,
+        IExperimentRunner experimentRunner,
         IDeckProvider deckProvider,
         IHostApplicationLifetime applicationLifetime,
         ILogger<Gods> logger)

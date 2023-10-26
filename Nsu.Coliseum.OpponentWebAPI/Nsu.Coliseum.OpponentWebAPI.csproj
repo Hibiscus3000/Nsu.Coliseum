@@ -18,4 +18,10 @@
         <ProjectReference Include="..\Nsu.Coliseum.StrategyInterface\Nsu.Coliseum.StrategyInterface.csproj"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <Content Update="appsettings.json">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+
 </Project>

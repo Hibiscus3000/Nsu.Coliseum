@@ -16,15 +16,17 @@ public static class OpponentWebApi
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
+
         // builder.Services.Configure<HostOptions>(opts =>
         //     opts.ShutdownTimeout = TimeSpan.FromSeconds(TimeoutSecs));
 
         var webStrategy = new WebStrategy();
         builder.Services
             .AddSingleton<WebStrategy>(_ => webStrategy);
-        int strategyNameIndex = Array.IndexOf(args, "--strategy") + 1;
-        if (0 != strategyNameIndex)
-            webStrategy.Strategy = StrategyResolverByName.ResolveStrategyByName(args[strategyNameIndex]);
+
+        string? strategyFromConfig = builder.Configuration["Strategy"];
+        if (null != strategyFromConfig)
+            webStrategy.Strategy = StrategyResolverByName.ResolveStrategyByName(strategyFromConfig);
 
         WebApplication app = builder.Build();
 
