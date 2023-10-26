@@ -1,3 +1,4 @@
+using System.Net;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Nsu.Coliseum.Strategies;
@@ -26,10 +27,10 @@ namespace OpponentWebAPI.Controllers
         }
 
         [HttpPost(template: "UseStrategy")]
-        public Results<Ok<int>, BadRequest> UseStrategy([FromBody] WebDeck webDeck,
+        public Results<Ok<int>, BadRequest, StatusCodeHttpResult> UseStrategy([FromBody] WebDeck webDeck,
             [FromServices] WebStrategy webStrategy)
         {
-            if (null == webStrategy.Strategy) return TypedResults.BadRequest();
+            if (null == webStrategy.Strategy) return TypedResults.StatusCode((int)HttpStatusCode.InternalServerError);
             return TypedResults.Ok(webStrategy.Strategy.PickCard(webDeck.Cards));
         }
     }
