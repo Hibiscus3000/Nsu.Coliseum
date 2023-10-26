@@ -60,10 +60,7 @@ public class DbDeckProvider : IDeckProvider
         if (null == _experimentEntities || currentEntity == _experimentEntities.Count)
         {
             ReadEntities();
-            if (null == _experimentEntities || 0 == _experimentEntities.Count)
-            {
-                return null;
-            }
+            if (null == _experimentEntities || 0 == _experimentEntities.Count) return null;
         }
 
         return _experimentEntities[currentEntity++].Deck;

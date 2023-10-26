@@ -6,7 +6,7 @@ namespace Nsu.Coliseum.Database.Tests;
 
 public class DatabaseTests : IDisposable
 {
-    private bool disposed = false;
+    private bool _disposed = false;
 
     private readonly SqliteConnection _connection;
     private readonly DbContextOptions _contextOptions;
@@ -40,9 +40,9 @@ public class DatabaseTests : IDisposable
 
     protected virtual void Dispose(bool disposing)
     {
-        if (disposed) return;
+        if (_disposed) return;
         if (disposing) _connection.Dispose();
-        disposed = true;
+        _disposed = true;
     }
 
     [Fact]

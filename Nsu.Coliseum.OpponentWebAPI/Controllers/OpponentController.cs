@@ -33,5 +33,15 @@ namespace OpponentWebAPI.Controllers
             if (null == webStrategy.Strategy) return TypedResults.StatusCode((int)HttpStatusCode.InternalServerError);
             return TypedResults.Ok(webStrategy.Strategy.PickCard(webDeck.Cards));
         }
+
+        [HttpPost(template: "UseStrategyAsync")]
+        public async Task<Results<Ok<int>, BadRequest, StatusCodeHttpResult>> UseStrategyAsync(
+            [FromBody] WebDeck webDeck,
+            [FromServices] WebStrategy webStrategy)
+        {
+            if (null == webStrategy.Strategy) return TypedResults.StatusCode((int)HttpStatusCode.InternalServerError);
+            int cardNumber = await webStrategy.Strategy.PickCardAsync(webDeck.Cards);
+            return TypedResults.Ok(cardNumber);
+        }
     }
 }

@@ -80,13 +80,29 @@ public class WebOpponents : IOpponents
         throw new Exception($"Unable to establish connection to {opponentType} app.");
     }
 
-    public int GetCardNumber(OpponentType type, Card[] cards)
+    public Task<HttpResponseMessage> GetCardNumberResponseTask(OpponentType type, Card[] cards,
+        string urlPath)
     {
         if (!_appsChecked) CheckApps();
         if (!_strategiesSend) SendStrategies();
-        Task<HttpResponseMessage> response = _httpClients[OpponentType.Elon]
-            .PostAsJsonAsync(ControllerPath + "UseStrategy",
+        return _httpClients[type]
+            .PostAsJsonAsync(ControllerPath + urlPath,
                 new WebDeck { Cards = cards });
-        return response.Result.Content.ReadFromJsonAsync<int>().Result;
+    }
+
+    private readonly string _useStrategyUrlPath = "UseStrategy";
+
+    public int GetCardNumber(OpponentType type, Card[] cards) =>
+        GetCardNumberResponseTask(type, cards, _useStrategyUrlPath)
+            .Result
+            .Content
+            .ReadFromJsonAsync<int>()
+            .Result;
+
+    public async Task<int> GetCardNumberAsync(OpponentType type, Card[] cards)
+    {
+        HttpResponseMessage res = await GetCardNumberResponseTask(type, cards, _useStrategyUrlPath + "Async");
+        int cardNumber = await res.Content.ReadFromJsonAsync<int>();
+        return cardNumber;
     }
 }

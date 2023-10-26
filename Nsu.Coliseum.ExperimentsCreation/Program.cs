@@ -18,7 +18,7 @@ public class Program
         {
             var experimentEntity = new ExperimentEntity
             {
-                Deck = deckProvider.GetDeck()
+                Deck = deckProvider.GetDeck()!
             };
             appContext.Experiments.Add(experimentEntity);
         }

@@ -69,9 +69,15 @@ public class Gods : IHostedService
 
     private void LogResults(int numberOfExperiments, int numberOfSuccesses)
     {
+        string statistics = "";
+        if (0 != numberOfExperiments)
+        {
+            statistics = " Statistics: " +
+                         ((double)numberOfSuccesses * 100 / numberOfExperiments)
+                         .ToString("N2") + "%.";
+        }
+
         _logger.LogInformation("Number of experiments: " + numberOfExperiments +
-                               ". Number of successes: " + numberOfSuccesses + ". Statistics: " +
-                               ((double)numberOfSuccesses * 100 / numberOfExperiments)
-                               .ToString("N2") + "%.");
+                               ". Number of successes: " + numberOfSuccesses + "." + statistics);
     }
 }

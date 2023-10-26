@@ -12,21 +12,21 @@ public enum OpponentType
 public interface IOpponents
 {
     int GetCardNumber(OpponentType type, Card[] cards);
+
+    Task<int> GetCardNumberAsync(OpponentType type, Card[] cards);
 }
 
 public class Opponents : IOpponents
 {
     private readonly IStrategyResolver _strategyResolver;
 
-    public Opponents(IStrategyResolver strategyResolver)
-    {
-        _strategyResolver = strategyResolver;
-    }
+    public Opponents(IStrategyResolver strategyResolver) => _strategyResolver = strategyResolver;
 
-    public int GetCardNumber(OpponentType type, Card[] cards)
-    {
-        return _strategyResolver.GetStrategy(type).PickCard(cards);
-    }
+    public int GetCardNumber(OpponentType type, Card[] cards) =>
+        _strategyResolver.GetStrategy(type).PickCard(cards);
+
+    public async Task<int> GetCardNumberAsync(OpponentType type, Card[] cards) =>
+        await _strategyResolver.GetStrategy(type).PickCardAsync(cards);
 }
 
 public interface IStrategyResolver
