@@ -1,43 +1,37 @@
 using Nsu.Coliseum.Deck;
 using Nsu.Coliseum.Sandbox;
-using OpponentWebAPI;
 
-namespace OpponentWepAPI;
+namespace OpponentWebAPI;
 
 public class WebOpponents : IOpponents
 {
     private readonly IStrategyResolver _strategyResolver;
-    private bool _appsStarted = false;
 
-    private readonly HttpClient _elonHttpClient;
-    private readonly HttpClient _markHttpClient;
+    private readonly Dictionary<OpponentType, HttpClient> _httpClients = new();
 
-    private readonly string _elonName = "elon";
-    private readonly string _markName = "mark";
+    private bool _strategiesSend;
 
-    private readonly int _elonPort = 5219;
-    private readonly int _markPort = 5220;
+    private const string ControllerPath = "/api/Opponent/";
 
-    public WebOpponents(IStrategyResolver strategyResolver)
+    private bool _appsChecked = false;
+    private const int TryCount = 100;
+    private const int WaitTimeoutMillis = 100;
+
+    public WebOpponents(IStrategyResolver strategyResolver, Dictionary<OpponentType, string> urls,
+        bool needToSendStrategies = false)
     {
         _strategyResolver = strategyResolver;
-        _elonHttpClient = new HttpClient(CreateSocketHandler());
-        _markHttpClient = new HttpClient(CreateSocketHandler());
+        _httpClients[OpponentType.Elon] = CreateHttpClient(urls[OpponentType.Elon]);
+        _httpClients[OpponentType.Mark] = CreateHttpClient(urls[OpponentType.Mark]);
 
-        //_elonHttpClient.BaseAddress = new Uri(OpponentWebApi.GetUrl(_elonName, _elonPort));
-        //_markHttpClient.BaseAddress = new Uri(OpponentWebApi.GetUrl(_markName, _markPort));
+        _strategiesSend = !needToSendStrategies;
     }
 
-    private void StartApps()
+    private HttpClient CreateHttpClient(string url)
     {
-        WebApplication elonApp = OpponentWebApi.CreateApp(_strategyResolver.GetStrategy(OpponentType.Elon),
-            opponentName: _elonName, port: _elonPort);
-        WebApplication markApp = OpponentWebApi.CreateApp(_strategyResolver.GetStrategy(OpponentType.Mark),
-            opponentName: _markName, port: _markPort);
-
-        elonApp.RunAsync(url: OpponentWebApi.GetUrl(opponentName: _elonName, _elonPort));
-        markApp.Run(url: OpponentWebApi.GetUrl(opponentName: _markName, _markPort));
-        _appsStarted = true;
+        var httpClient = new HttpClient(CreateSocketHandler());
+        httpClient.BaseAddress = new Uri(url);
+        return httpClient;
     }
 
     private SocketsHttpHandler CreateSocketHandler() => new()
@@ -45,16 +39,54 @@ public class WebOpponents : IOpponents
         PooledConnectionLifetime = TimeSpan.FromMinutes(2)
     };
 
+    private void SendStrategies()
+    {
+        foreach (OpponentType opponentType in Enum.GetValues(typeof(OpponentType)))
+        {
+            HttpResponseMessage responseMessage = SendStrategy(opponentType);
+            if (responseMessage.IsSuccessStatusCode)
+                throw new Exception($"Unable to send strategies to {opponentType}." +
+                                    $"Status code: {responseMessage.StatusCode}.");
+        }
+
+        _strategiesSend = true;
+    }
+
+    private HttpResponseMessage SendStrategy(OpponentType opponentType) =>
+        _httpClients[opponentType].PostAsJsonAsync(ControllerPath + "SetStrategy",
+            _strategyResolver.GetStrategy(opponentType)).Result;
+
+    private void CheckApps()
+    {
+        foreach (OpponentType opponentType in Enum.GetValues(typeof(OpponentType))) CheckApp(opponentType);
+        _appsChecked = true;
+    }
+
+    private void CheckApp(OpponentType opponentType)
+    {
+        for (int i = 0; i < TryCount; ++i)
+        {
+            try
+            {
+                if (_httpClients[opponentType].GetAsync("").Result.IsSuccessStatusCode) return;
+            }
+            catch (Exception e)
+            {
+            }
+
+            Thread.Sleep(WaitTimeoutMillis);
+        }
+
+        throw new Exception($"Unable to establish connection to {opponentType} app.");
+    }
+
     public int GetCardNumber(OpponentType type, Card[] cards)
     {
-        if (!_appsStarted) StartApps();
-        Task<HttpResponseMessage> response = (type switch
-        {
-            OpponentType.Elon => _elonHttpClient,
-            OpponentType.Mark => _markHttpClient,
-        }).PostAsJsonAsync("http://locahost:5219/Opponent/UseStrategy", cards);
-        var res = response.GetAwaiter().GetResult();
-        Console.WriteLine(res);
-        return 0;
+        if (!_appsChecked) CheckApps();
+        if (!_strategiesSend) SendStrategies();
+        Task<HttpResponseMessage> response = _httpClients[OpponentType.Elon]
+            .PostAsJsonAsync(ControllerPath + "UseStrategy",
+                new WebDeck { Cards = cards });
+        return response.Result.Content.ReadFromJsonAsync<int>().Result;
     }
 }

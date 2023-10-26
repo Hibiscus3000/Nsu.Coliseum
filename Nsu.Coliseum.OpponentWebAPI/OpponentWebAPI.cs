@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+using Nsu.Coliseum.Deck;
 using Nsu.Coliseum.Strategies;
 using Nsu.Coliseum.StrategyInterface;
 
@@ -5,21 +7,24 @@ namespace OpponentWebAPI;
 
 public static class OpponentWebApi
 {
+    private static readonly int TimeoutSecs;
+
     public static void Main(string[] args)
     {
-        CreateApp(new ZeroStrategy(), "localhost", 5219, args).RunAsync(GetUrl("localhost", 5219));
-        CreateApp(new ZeroStrategy(), "localhost", 5220, args).Run(GetUrl("localhost", 5220));
-    }
-
-    public static WebApplication CreateApp(IStrategy strategy, string opponentName, int port,
-        string[]? args = null)
-    {
-        var builder = WebApplication.CreateBuilder(args ?? Array.Empty<string>());
+        var builder = WebApplication.CreateBuilder(args);
 
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
-        builder.Services.AddScoped<IStrategy>(_ => strategy);
+        // builder.Services.Configure<HostOptions>(opts =>
+        //     opts.ShutdownTimeout = TimeSpan.FromSeconds(TimeoutSecs));
+
+        var webStrategy = new WebStrategy();
+        builder.Services
+            .AddSingleton<WebStrategy>(_ => webStrategy);
+        int strategyNameIndex = Array.IndexOf(args, "--strategy") + 1;
+        if (0 != strategyNameIndex)
+            webStrategy.Strategy = StrategyResolverByName.ResolveStrategyByName(args[strategyNameIndex]);
 
         WebApplication app = builder.Build();
 
@@ -29,17 +34,29 @@ public static class OpponentWebApi
             app.UseSwaggerUI();
         }
 
+        app.MapGet("/", () => Results.Ok());
+
         app.UseHttpsRedirection();
 
         app.UseAuthorization();
 
         app.MapControllers();
 
-        return app;
+        app.Run();
     }
+}
 
-    public static string GetUrl(string opponentName, int port)
-    {
-        return $"http://localhost:{port}";
-    }
+public class WebStrategy
+{
+    [Required] public IStrategy? Strategy { get; set; } = null;
+}
+
+public class WebDeck
+{
+    private const int NumberOfCards = 18;
+
+    [Required(ErrorMessage = "Cards are required")]
+    [MinLength(NumberOfCards)]
+    [MaxLength(NumberOfCards)]
+    public Card[]? Cards { get; init; }
 }

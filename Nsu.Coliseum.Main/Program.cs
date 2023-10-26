@@ -4,7 +4,7 @@ using Nsu.Coliseum.Deck;
 using Nsu.Coliseum.Sandbox;
 using Nsu.Coliseum.Strategies;
 using Nsu.Coliseum.StrategyInterface;
-using OpponentWepAPI;
+using OpponentWebAPI;
 
 namespace Nsu.Coliseum.Main;
 
@@ -40,7 +40,20 @@ public class Program
 
                 // services.AddSingleton<IOpponents, Opponents>(_ => new Opponents(strategyResolver));
 
-                services.AddSingleton<IOpponents, WebOpponents>(_ => new WebOpponents(strategyResolver));
+                int elonUrlIndex = Array.IndexOf(args, "--elon-url") + 1;
+                int markUrlIndex = Array.IndexOf(args, "--mark-url") + 1;
+
+                if (0 == elonUrlIndex) throw new ArgumentException("Elon URL not specified");
+                if (0 == markUrlIndex) throw new ArgumentException("Mark URL not specified");
+
+                Dictionary<OpponentType, string> urls = new Dictionary<OpponentType, string>
+                {
+                    { OpponentType.Elon, args[elonUrlIndex] },
+                    { OpponentType.Mark, args[markUrlIndex] }
+                };
+
+                services.AddSingleton<IOpponents, WebOpponents>(_ => new WebOpponents(strategyResolver,
+                    urls));
             });
     }
 }
