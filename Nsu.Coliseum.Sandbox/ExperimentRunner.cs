@@ -4,36 +4,56 @@ namespace Nsu.Coliseum.Sandbox;
 
 public interface IExperimentRunner
 {
-    public bool Execute(IOpponents opponents, Deck.Deck deck);
+    public bool Execute(Deck.Deck deck);
 }
 
-public class ExperimentRunner : IExperimentRunner
+public abstract class AbstractExperimentRunner : IExperimentRunner
 {
-    public bool Execute(IOpponents opponents, Deck.Deck deck)
+    protected readonly IOpponents Opponents;
+
+    public AbstractExperimentRunner(IOpponents opponents)
+    {
+        Opponents = opponents;
+    }
+
+    public abstract bool Execute(Deck.Deck deck);
+}
+
+public class ExperimentRunner : AbstractExperimentRunner
+{
+    public ExperimentRunner(IOpponents opponents) : base(opponents)
+    {
+    }
+
+    public override bool Execute(Deck.Deck deck)
     {
         Card[][] splitedDeck = deck.Split(2);
 
         Card[] elonDeck = splitedDeck[0];
         Card[] markDeck = splitedDeck[1];
 
-        int elonCardNum = opponents.GetCardNumber(OpponentType.Elon, elonDeck);
-        int markCardNum = opponents.GetCardNumber(OpponentType.Mark, markDeck);
+        int elonCardNum = Opponents.GetCardNumber(OpponentType.Elon, elonDeck);
 
+        int markCardNum = Opponents.GetCardNumber(OpponentType.Mark, markDeck);
         return elonDeck[markCardNum].CardColor == markDeck[elonCardNum].CardColor;
     }
 }
 
-public class AsyncExperimentRunner : IExperimentRunner
+public class AsyncExperimentRunner : AbstractExperimentRunner
 {
-    public bool Execute(IOpponents opponents, Deck.Deck deck)
+    public AsyncExperimentRunner(IOpponents opponents) : base(opponents)
+    {
+    }
+
+    public override bool Execute(Deck.Deck deck)
     {
         Card[][] splitedDeck = deck.Split(2);
 
         Card[] elonDeck = splitedDeck[0];
         Card[] markDeck = splitedDeck[1];
 
-        Task<int> elonCardNum = opponents.GetCardNumberAsync(OpponentType.Elon, elonDeck);
-        Task<int> markCardNum = opponents.GetCardNumberAsync(OpponentType.Mark, markDeck);
+        Task<int> elonCardNum = Opponents.GetCardNumberAsync(OpponentType.Elon, elonDeck);
+        Task<int> markCardNum = Opponents.GetCardNumberAsync(OpponentType.Mark, markDeck);
 
         return elonDeck[markCardNum.Result].CardColor == markDeck[elonCardNum.Result].CardColor;
     }

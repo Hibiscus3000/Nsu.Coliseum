@@ -25,15 +25,15 @@ public class Program
                 IConfiguration config = hostContext.Configuration;
 
                 services.AddHostedService<Gods>();
-                services.AddScoped<IExperimentRunner>(_ => CreateExperimentRunner(config));
-                services.AddScoped<IDeckProvider>(_ => CreateDeckProvider(config));
-                services.AddSingleton<IOpponents>(_ => CreateOpponents(config));
+                ConfigureExperimentRunner(config, services);
+                ConfigureDeckProvider(config, services);
+                ConfigureOpponents(config, services);
             });
     }
 
-    private static IDeckProvider CreateDeckProvider(IConfiguration config)
-    {
-        return config["DeckProvider"] switch
+    private static void ConfigureDeckProvider(IConfiguration config,
+        IServiceCollection services) =>
+        services.AddScoped<IDeckProvider>(_ => config["DeckProvider"] switch
         {
             "random" => new RandomDeckProvider(
                 numberOfDecks: null != config["NumberOfExperiments"] &&
@@ -45,20 +45,24 @@ public class Program
                     ? resultNC
                     : 36),
             "database" => new DbDeckProvider()
-        };
+        });
+
+    private static void ConfigureExperimentRunner(IConfiguration config,
+        IServiceCollection services)
+    {
+        if (Convert.ToBoolean(config["Async"])) services.AddScoped<IExperimentRunner, ExperimentRunner>();
+        else services.AddScoped<IExperimentRunner, AsyncExperimentRunner>();
     }
 
-    private static IExperimentRunner CreateExperimentRunner(IConfiguration config) =>
-        Convert.ToBoolean(config["Async"]) ? new AsyncExperimentRunner() : new ExperimentRunner();
-
-    private static IOpponents CreateOpponents(IConfiguration config)
+    private static void ConfigureOpponents(IConfiguration config,
+        IServiceCollection services)
     {
         IStrategyResolver strategyResolver = CreateStrategyResolver(config);
-        return config["Opponents:Type"] switch
+        services.AddScoped<IOpponents>(_ => config["Opponents:Type"] switch
         {
             "web" => new WebOpponents(strategyResolver, CreateUrlDict(config)),
             "default" => new Opponents(strategyResolver)
-        };
+        });
     }
 
     private static Dictionary<OpponentType, string> CreateUrlDict(IConfiguration config) =>

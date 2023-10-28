@@ -6,8 +6,6 @@ namespace Nsu.Coliseum.Sandbox;
 
 public class Gods : IHostedService
 {
-    private readonly IOpponents _opponents;
-
     private readonly IExperimentRunner _experimentRunner;
     private readonly IDeckProvider _deckProvider;
 
@@ -15,14 +13,11 @@ public class Gods : IHostedService
 
     private readonly ILogger<Gods> _logger;
 
-    public Gods(IOpponents opponents,
-        IExperimentRunner experimentRunner,
+    public Gods(IExperimentRunner experimentRunner,
         IDeckProvider deckProvider,
         IHostApplicationLifetime applicationLifetime,
         ILogger<Gods> logger)
     {
-        _opponents = opponents;
-
         _experimentRunner = experimentRunner;
         _deckProvider = deckProvider;
 
@@ -41,7 +36,7 @@ public class Gods : IHostedService
 
         while (null != (deck = _deckProvider.GetDeck()))
         {
-            if (_experimentRunner.Execute(_opponents, deck))
+            if (_experimentRunner.Execute(deck))
             {
                 ++numberOfSuccesses;
             }

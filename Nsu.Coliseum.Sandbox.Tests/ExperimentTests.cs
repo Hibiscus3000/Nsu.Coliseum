@@ -6,11 +6,9 @@ namespace Nsu.Coliseum.Sandbox.Tests;
 
 public class ExperimentTests
 {
-    private readonly IOpponents _opponents;
-
     private const int NumberOfCards = 36;
 
-    private readonly ExperimentRunner _sut = new ExperimentRunner();
+    private readonly ExperimentRunner _sut;
 
     private readonly Mock<IDeckShuffler> _deckShufflerStub = new();
 
@@ -26,7 +24,7 @@ public class ExperimentTests
             [OpponentType.Mark] = markStrategyStub.Object
         });
 
-        _opponents = new Opponents(strategyResolver);
+        _sut = new ExperimentRunner(new Opponents(strategyResolver));
     }
 
     [Fact]
@@ -36,8 +34,7 @@ public class ExperimentTests
         deckShufflerMock.Setup(m => m.ShuffleDeck(It.IsAny<Deck.Deck>()));
 
 
-        _sut.Execute(_opponents,
-            new RandomDeckProvider(1, NumberOfCards, deckShufflerMock.Object).GetDeck());
+        _sut.Execute(new RandomDeckProvider(1, NumberOfCards, deckShufflerMock.Object).GetDeck());
 
         deckShufflerMock.Verify(m => m.ShuffleDeck(It.IsAny<Deck.Deck>()), Times.Once);
     }
@@ -61,8 +58,7 @@ public class ExperimentTests
     {
         _deckShufflerStub.Setup(m => m.ShuffleDeck(It.IsAny<Deck.Deck>()))
             .Callback((Deck.Deck deck) => PredifinedDeckShuflle(deck));
-        Assert.False(_sut.Execute(_opponents,
-            new RandomDeckProvider(1, NumberOfCards, _deckShufflerStub.Object).GetDeck()));
+        Assert.False(_sut.Execute(new RandomDeckProvider(1, NumberOfCards, _deckShufflerStub.Object).GetDeck()));
     }
 
     [Fact]
@@ -76,7 +72,6 @@ public class ExperimentTests
                 (cards[18], cards[19]) = (cards[19], cards[18]);
             });
 
-        Assert.True(_sut.Execute(_opponents,
-            new RandomDeckProvider(1, NumberOfCards, _deckShufflerStub.Object).GetDeck()));
+        Assert.True(_sut.Execute(new RandomDeckProvider(1, NumberOfCards, _deckShufflerStub.Object).GetDeck()));
     }
 }
