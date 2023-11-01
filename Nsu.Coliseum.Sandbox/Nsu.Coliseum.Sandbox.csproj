@@ -9,6 +9,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Nsu.Coliseum.Deck\Nsu.Coliseum.Deck.csproj"/>
+        <ProjectReference Include="..\Nsu.Coliseum.Opponents\Nsu.Coliseum.Opponents.csproj"/>
         <ProjectReference Include="..\Nsu.Coliseum.StrategyInterface\Nsu.Coliseum.StrategyInterface.csproj"/>
     </ItemGroup>
 

@@ -7,6 +7,8 @@ namespace Nsu.Coliseum.Sandbox;
 public class Gods : IHostedService
 {
     private readonly IExperimentRunner _experimentRunner;
+    private readonly IExperimentContext _experimentContext;
+
     private readonly IDeckProvider _deckProvider;
 
     private readonly IHostApplicationLifetime _appLifetime;
@@ -14,11 +16,14 @@ public class Gods : IHostedService
     private readonly ILogger<Gods> _logger;
 
     public Gods(IExperimentRunner experimentRunner,
+        IExperimentContext experimentContext,
         IDeckProvider deckProvider,
         IHostApplicationLifetime applicationLifetime,
         ILogger<Gods> logger)
     {
         _experimentRunner = experimentRunner;
+        _experimentContext = experimentContext;
+
         _deckProvider = deckProvider;
 
         _appLifetime = applicationLifetime;
@@ -34,19 +39,15 @@ public class Gods : IHostedService
 
         _logger.LogDebug("Starting experiments");
 
-        while (null != (deck = _deckProvider.GetDeck()))
-        {
-            if (_experimentRunner.Execute(deck))
-            {
-                ++numberOfSuccesses;
-            }
+        while (null != (deck = _deckProvider.GetDeck())) _experimentRunner.Execute(deck);
 
-            ++numberOfExperiments;
-        }
+        _logger.LogDebug("Finished running experiments");
 
-        _logger.LogDebug("Finished experiments");
+        _logger.LogDebug("Starting to wait experiment results");
 
-        LogResults(numberOfExperiments, numberOfSuccesses);
+        _logger.LogDebug("Finished waiting experiment results");
+
+        _logger.LogInformation(_experimentContext.ToString());
 
         _appLifetime.StopApplication();
     }
@@ -60,19 +61,5 @@ public class Gods : IHostedService
     public Task StopAsync(CancellationToken cancellationToken)
     {
         return Task.CompletedTask;
-    }
-
-    private void LogResults(int numberOfExperiments, int numberOfSuccesses)
-    {
-        string statistics = "";
-        if (0 != numberOfExperiments)
-        {
-            statistics = " Statistics: " +
-                         ((double)numberOfSuccesses * 100 / numberOfExperiments)
-                         .ToString("N2") + "%.";
-        }
-
-        _logger.LogInformation("Number of experiments: " + numberOfExperiments +
-                               ". Number of successes: " + numberOfSuccesses + "." + statistics);
     }
 }

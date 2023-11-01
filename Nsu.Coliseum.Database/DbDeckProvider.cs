@@ -15,9 +15,9 @@ public class DbDeckProvider : IDeckProvider
     private readonly int _numberOfExperimentLimit;
     private int _numberOfExperimentsRead = 0;
 
-    public DbDeckProvider(int numberOfExperimentLimit = 100)
+    public DbDeckProvider(DeckSizeAndNumOfDecks deckSizeAndNumOfDecks)
     {
-        _numberOfExperimentLimit = numberOfExperimentLimit;
+        _numberOfExperimentLimit = deckSizeAndNumOfDecks.NumberOfDecks;
     }
 
     private void ReadEntities()

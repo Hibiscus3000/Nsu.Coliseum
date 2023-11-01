@@ -30,7 +30,7 @@ public class DatabaseTests : IDisposable
 
     private IDeckProvider CreateDeckProvider(int numberOfDecks) => new RandomDeckProvider(numberOfDecks: numberOfDecks,
         numberOfCards: 36,
-        new DeckShuffler());
+        deckShuffler: new DeckShuffler());
 
     public void Dispose()
     {

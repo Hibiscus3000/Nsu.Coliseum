@@ -1,11 +1,13 @@
 using Nsu.Coliseum.Deck;
-using Nsu.Coliseum.Sandbox;
+using Nsu.Coliseum.Opponents;
+using Nsu.Coliseum.StrategyInterface;
+using ReposAndResolvers;
 
 namespace OpponentWebAPI;
 
 public class WebOpponents : IOpponents
 {
-    private readonly IStrategyResolver _strategyResolver;
+    private readonly IResolver<IStrategy> _strategyResolver;
 
     private readonly Dictionary<OpponentType, HttpClient> _httpClients = new();
 
@@ -17,12 +19,12 @@ public class WebOpponents : IOpponents
     private const int TryCount = 100;
     private const int WaitTimeoutMillis = 100;
 
-    public WebOpponents(IStrategyResolver strategyResolver, Dictionary<OpponentType, string> urls,
+    public WebOpponents(IResolver<IStrategy> strategyResolver, IResolver<OpponentUrl> urlResolver,
         bool needToSendStrategies = false)
     {
         _strategyResolver = strategyResolver;
-        _httpClients[OpponentType.Elon] = CreateHttpClient(urls[OpponentType.Elon]);
-        _httpClients[OpponentType.Mark] = CreateHttpClient(urls[OpponentType.Mark]);
+        _httpClients[OpponentType.Elon] = CreateHttpClient(urlResolver.GetT(OpponentType.Elon).Value);
+        _httpClients[OpponentType.Mark] = CreateHttpClient(urlResolver.GetT(OpponentType.Mark).Value);
 
         _strategiesSend = !needToSendStrategies;
     }
@@ -54,7 +56,7 @@ public class WebOpponents : IOpponents
 
     private HttpResponseMessage SendStrategy(OpponentType opponentType) =>
         _httpClients[opponentType].PostAsJsonAsync(ControllerPath + "SetStrategy",
-            _strategyResolver.GetStrategy(opponentType)).Result;
+            _strategyResolver.GetT(opponentType)).Result;
 
     private void CheckApps()
     {

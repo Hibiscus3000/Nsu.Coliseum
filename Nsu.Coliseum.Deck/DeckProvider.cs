@@ -12,7 +12,12 @@ public class RandomDeckProvider : IDeckProvider
 
     private int _numberOfDecks;
 
-    public RandomDeckProvider(int numberOfDecks, int numberOfCards = 36, IDeckShuffler? deckShuffler = null)
+    public RandomDeckProvider(DeckSizeAndNumOfDecks deckSizeAndNumOfDecks, IDeckShuffler? deckShuffler = null) :
+        this(deckSizeAndNumOfDecks.NumberOfCardsInDeck, deckSizeAndNumOfDecks.NumberOfDecks, deckShuffler)
+    {
+    }
+
+    public RandomDeckProvider(int numberOfCards, int numberOfDecks, IDeckShuffler? deckShuffler = null)
     {
         _numberOfCards = numberOfCards;
         _deckShuffler = deckShuffler ?? new DeckShuffler();

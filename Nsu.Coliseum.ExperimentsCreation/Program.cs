@@ -11,7 +11,9 @@ public class Program
     {
         int numberOfExperiments = args.Length >= 1 && int.TryParse(args[0], out int result) ? result : 100;
 
-        var deckProvider = new RandomDeckProvider(numberOfExperiments, NumberOfCards, new DeckShuffler());
+        var deckProvider = new RandomDeckProvider(numberOfDecks: numberOfExperiments,
+            numberOfCards: NumberOfCards,
+            deckShuffler: new DeckShuffler());
 
         using var appContext = new ExperimentsContext();
         for (int i = 0; i < numberOfExperiments; ++i)

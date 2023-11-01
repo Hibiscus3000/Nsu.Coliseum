@@ -1,6 +1,7 @@
 using Moq;
 using Nsu.Coliseum.Deck;
 using Nsu.Coliseum.StrategyInterface;
+using ReposAndResolvers;
 
 namespace Nsu.Coliseum.Sandbox.Tests;
 
@@ -8,7 +9,9 @@ public class ExperimentTests
 {
     private const int NumberOfCards = 36;
 
-    private readonly ExperimentRunner _sut;
+    private readonly Resolver<IStrategy> _strategyResolver;
+    private IExperimentRunner _sut;
+    private IExperimentContext _experimentContext;
 
     private readonly Mock<IDeckShuffler> _deckShufflerStub = new();
 
@@ -18,28 +21,32 @@ public class ExperimentTests
         Mock<IStrategy> markStrategyStub = new();
         elonStrategyStub.Setup(m => m.PickCard(It.IsAny<Card[]>())).Returns(0);
         markStrategyStub.Setup(m => m.PickCard(It.IsAny<Card[]>())).Returns(0);
-        var strategyResolver = new StrategyResolver(new Dictionary<OpponentType, IStrategy>
-        {
-            [OpponentType.Elon] = elonStrategyStub.Object,
-            [OpponentType.Mark] = markStrategyStub.Object
-        });
+        _strategyResolver = new Resolver<IStrategy>();
+        _strategyResolver.SaveT(OpponentType.Elon, elonStrategyStub.Object);
+        _strategyResolver.SaveT(OpponentType.Mark, markStrategyStub.Object);
+    }
 
-        _sut = new ExperimentRunner(new Opponents(strategyResolver));
+    private void updateSut()
+    {
+        _experimentContext = new ExperimentContext();
+        _sut = new ExperimentRunner(new Opponents.Opponents(_strategyResolver), _experimentContext);
     }
 
     [Fact]
     public void Execute_ShuffleDeckCalledOneTime()
     {
+        updateSut();
+
         var deckShufflerMock = new Mock<IDeckShuffler>();
         deckShufflerMock.Setup(m => m.ShuffleDeck(It.IsAny<Deck.Deck>()));
 
-
-        _sut.Execute(new RandomDeckProvider(1, NumberOfCards, deckShufflerMock.Object).GetDeck());
+        _sut.Execute(new RandomDeckProvider(numberOfDecks: 1, numberOfCards: NumberOfCards,
+            deckShuffler: deckShufflerMock.Object).GetDeck());
 
         deckShufflerMock.Verify(m => m.ShuffleDeck(It.IsAny<Deck.Deck>()), Times.Once);
     }
 
-    private void PredifinedDeckShuflle(Deck.Deck deck)
+    private void PredefinedDeckShuffle(Deck.Deck deck)
     {
         Card[] cards = deck.Cards;
         var numberOfSuits = Enum.GetValues(typeof(CardType)).Length;
@@ -54,24 +61,34 @@ public class ExperimentTests
     }
 
     [Fact]
-    public void Execute_LoosingDeckProvided_ReturnsFalse()
+    public void Execute_LoosingDeckProvided_NumberOfVictoriesEqualsToZero()
     {
+        updateSut();
+
         _deckShufflerStub.Setup(m => m.ShuffleDeck(It.IsAny<Deck.Deck>()))
-            .Callback((Deck.Deck deck) => PredifinedDeckShuflle(deck));
-        Assert.False(_sut.Execute(new RandomDeckProvider(1, NumberOfCards, _deckShufflerStub.Object).GetDeck()));
+            .Callback((Deck.Deck deck) => PredefinedDeckShuffle(deck));
+        _sut.Execute(new RandomDeckProvider(numberOfDecks: 1, numberOfCards: NumberOfCards,
+            deckShuffler: _deckShufflerStub.Object).GetDeck());
+        Assert.Equal(1, _experimentContext.GetNumberOfExperiments());
+        Assert.Equal(0, _experimentContext.GetNumberOfVictories());
     }
 
     [Fact]
-    public void Execute_WinningDeckProvided_ReturnsTrue()
+    public void Execute_WinningDeckProvided_NumberOfVictoriesEqualsToOne()
     {
+        updateSut();
+
         _deckShufflerStub.Setup(m => m.ShuffleDeck(It.IsAny<Deck.Deck>()))
             .Callback((Deck.Deck deck) =>
             {
-                PredifinedDeckShuflle(deck);
+                PredefinedDeckShuffle(deck);
                 Card[] cards = deck.Cards;
                 (cards[18], cards[19]) = (cards[19], cards[18]);
             });
 
-        Assert.True(_sut.Execute(new RandomDeckProvider(1, NumberOfCards, _deckShufflerStub.Object).GetDeck()));
+        _sut.Execute(new RandomDeckProvider(numberOfDecks: 1, numberOfCards: NumberOfCards,
+            deckShuffler: _deckShufflerStub.Object).GetDeck());
+        Assert.Equal(1, _experimentContext.GetNumberOfExperiments());
+        Assert.Equal(1, _experimentContext.GetNumberOfVictories());
     }
 }

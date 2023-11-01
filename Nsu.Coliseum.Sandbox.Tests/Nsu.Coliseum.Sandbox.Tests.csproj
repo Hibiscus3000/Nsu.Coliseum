@@ -25,6 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Nsu.Coliseum.Opponents\Nsu.Coliseum.Opponents.csproj"/>
     <ProjectReference Include="..\Nsu.Coliseum.Sandbox\Nsu.Coliseum.Sandbox.csproj"/>
   </ItemGroup>
 
