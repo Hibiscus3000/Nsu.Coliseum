@@ -6,6 +6,7 @@ namespace Nsu.Coliseum.Sandbox;
 
 public class Gods : IHostedService
 {
+    private const int MillisecondsDelay = 100;
     private readonly IExperimentRunner _experimentRunner;
     private readonly IExperimentContext _experimentContext;
 
@@ -30,20 +31,31 @@ public class Gods : IHostedService
         _logger = logger;
     }
 
-    private void Play()
+    private async Task Play()
     {
-        int numberOfSuccesses = 0;
-        int numberOfExperiments = 0;
-
         Deck.Deck? deck;
+
+        int numberOfExperiments = 0;
 
         _logger.LogDebug("Starting experiments");
 
-        while (null != (deck = _deckProvider.GetDeck())) _experimentRunner.Execute(deck);
+        while (null != (deck = _deckProvider.GetDeck()))
+        {
+            _experimentRunner.Execute(deck);
+            ++numberOfExperiments;
+            _logger.LogDebug($"Ran {numberOfExperiments} experiments");
+        }
 
         _logger.LogDebug("Finished running experiments");
 
         _logger.LogDebug("Starting to wait experiment results");
+
+        int numberOfExperimentsFinished;
+        while (numberOfExperiments != (numberOfExperimentsFinished = _experimentContext.GetNumberOfExperiments()))
+        {
+            _logger.LogDebug($"{numberOfExperimentsFinished}/{numberOfExperiments} experiments finished");
+            await Task.Delay(MillisecondsDelay);
+        }
 
         _logger.LogDebug("Finished waiting experiment results");
 

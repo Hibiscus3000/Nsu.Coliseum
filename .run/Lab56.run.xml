@@ -1,0 +1,8 @@
+<component name="ProjectRunConfigurationManager">
+    <configuration default="false" name="Lab56" type="CompoundRunConfigurationType">
+        <toRun name="ElonMuskWebAPI" type="DotNetProject"/>
+        <toRun name="Main" type="DotNetProject"/>
+        <toRun name="MarkZuckerbergWebAPI" type="DotNetProject"/>
+        <method v="2"/>
+    </configuration>
+</component>

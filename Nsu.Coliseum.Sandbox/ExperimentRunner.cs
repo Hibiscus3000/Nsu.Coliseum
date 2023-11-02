@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Nsu.Coliseum.Deck;
 using Nsu.Coliseum.Opponents;
 using ReposAndResolvers;
@@ -79,13 +80,19 @@ public interface IExperimentContext
 
 public class ExperimentContext : IExperimentContext
 {
+    private readonly ILogger<ExperimentContext> _logger;
+
     private int _numberOfExperiments = 0;
     private int _numberOfVictories = 0;
+
+    public ExperimentContext(ILogger<ExperimentContext> logger) => _logger = logger;
 
     public void AddExperimentResult(bool victory)
     {
         Interlocked.Increment(ref _numberOfExperiments);
         if (victory) Interlocked.Increment(ref _numberOfVictories);
+        _logger.LogDebug(
+            $"Added experiment result in context, Total: {_numberOfExperiments}, Victories: {_numberOfVictories}");
     }
 
     public int GetNumberOfExperiments() => _numberOfExperiments;

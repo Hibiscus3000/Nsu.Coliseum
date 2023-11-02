@@ -29,4 +29,13 @@
     <ProjectReference Include="..\Nsu.Coliseum.Sandbox\Nsu.Coliseum.Sandbox.csproj"/>
   </ItemGroup>
 
+    <ItemGroup>
+        <Reference Include="Microsoft.Extensions.Logging">
+            <HintPath>..\..\..\.nuget\packages\microsoft.extensions.logging\7.0.0\lib\net7.0\Microsoft.Extensions.Logging.dll</HintPath>
+        </Reference>
+        <Reference Include="Microsoft.Extensions.Logging.Abstractions">
+            <HintPath>..\..\..\.nuget\packages\microsoft.extensions.logging.abstractions\7.0.0\lib\net7.0\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+
 </Project>

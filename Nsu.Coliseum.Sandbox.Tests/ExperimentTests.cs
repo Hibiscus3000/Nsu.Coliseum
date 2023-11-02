@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Moq;
 using Nsu.Coliseum.Deck;
 using Nsu.Coliseum.StrategyInterface;
@@ -22,13 +23,13 @@ public class ExperimentTests
         elonStrategyStub.Setup(m => m.PickCard(It.IsAny<Card[]>())).Returns(0);
         markStrategyStub.Setup(m => m.PickCard(It.IsAny<Card[]>())).Returns(0);
         _strategyResolver = new Resolver<IStrategy>();
-        _strategyResolver.SaveT(OpponentType.Elon, elonStrategyStub.Object);
-        _strategyResolver.SaveT(OpponentType.Mark, markStrategyStub.Object);
+        _strategyResolver.AddT(OpponentType.Elon, elonStrategyStub.Object);
+        _strategyResolver.AddT(OpponentType.Mark, markStrategyStub.Object);
     }
 
     private void updateSut()
     {
-        _experimentContext = new ExperimentContext();
+        _experimentContext = new ExperimentContext(new Mock<ILogger<ExperimentContext>>().Object);
         _sut = new ExperimentRunner(new Opponents.Opponents(_strategyResolver), _experimentContext);
     }
 

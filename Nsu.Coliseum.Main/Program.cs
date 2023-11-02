@@ -1,8 +1,11 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using MassTransit;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Nsu.Coliseum.Database;
 using Nsu.Coliseum.Deck;
+using Nsu.Coliseum.MassTransit.Consumers;
+using Nsu.Coliseum.MassTransitOpponents;
 using Nsu.Coliseum.Opponents;
 using Nsu.Coliseum.Sandbox;
 using Nsu.Coliseum.Strategies;
@@ -29,7 +32,7 @@ public class Program
                 services.AddHostedService<Gods>();
 
                 ConfigureDeckSizeAndExperimentsNum(config, services);
-                services.AddScoped<IExperimentContext, ExperimentContext>();
+                services.AddSingleton<IExperimentContext, ExperimentContext>();
                 ConfigureExperimentRunner(config, services);
                 ConfigureDeckProvider(config, services);
                 ConfigureUrlResolver(config, services);
@@ -77,25 +80,28 @@ public class Program
             case "async":
                 services.AddScoped<IExperimentRunner, ExperimentRunnerAsync>();
                 break;
-            // case "mass-transit":
-            //     services.AddScoped<IExperimentRunner, MassTransitExperimentRunner>();
-            //     services.AddMassTransit(configurator =>
-            //     {
-            //         configurator.UsingRabbitMq((context, cfg) =>
-            //         {
-            //             cfg.ConfigureEndpoints(context);
-            //             cfg.ReceiveEndpoint("elon-decks", e =>
-            //             {
-            //                 e.Lazy = true;
-            //                 e.ExclusiveConsumer = true;
-            //                 //TODO PrefetchCount
-            //                 e.ConfigureConsumer<DeckAndCardNumberConsumer>(context);
-            //             });
-            //         });
-            //     });
-            //     ConfigureDeckQueueNameResolver(config, services);
-            //     
-            //     break;
+            case "mass-transit":
+                services.AddScoped<IExperimentRunner, MassTransitExperimentRunner>();
+
+                MassTransitResolver<QueueName> queues = QueuesAndRoutingKeys.GetMainQueueNames();
+                services.AddScoped<MassTransitResolver<QueueName>>(_ => queues);
+                services.AddSingleton<IRepo<CardColor>, Repo<CardColor>>();
+                services.AddMassTransit(configurator =>
+                {
+                    configurator.AddConsumer<CardNumberAcceptedConsumer>();
+                    configurator.UsingRabbitMq((context, cfg) =>
+                    {
+                        cfg.ReceiveEndpoint(queues.GetName(QueueType.CardNumberAccepted).Value, e =>
+                        {
+                            e.Lazy = true;
+                            e.ExclusiveConsumer = true;
+
+                            e.ConfigureConsumer<CardNumberAcceptedConsumer>(context);
+                        });
+                    });
+                });
+
+                break;
         }
     }
 
@@ -117,8 +123,8 @@ public class Program
         IServiceCollection services)
     {
         var urlResolver = new Resolver<OpponentUrl>();
-        urlResolver.SaveT(OpponentType.Elon, new OpponentUrl { Value = config["Opponents:ElonUrl"] });
-        urlResolver.SaveT(OpponentType.Mark, new OpponentUrl { Value = config["Opponents:MarkUrl"] });
+        urlResolver.AddT(OpponentType.Elon, new OpponentUrl { Value = config["Opponents:ElonUrl"] });
+        urlResolver.AddT(OpponentType.Mark, new OpponentUrl { Value = config["Opponents:MarkUrl"] });
 
         services.AddScoped<IResolver<OpponentUrl>>(_ => urlResolver);
     }
@@ -127,20 +133,11 @@ public class Program
         IServiceCollection services)
     {
         Resolver<IStrategy> strategyResolver = new Resolver<IStrategy>();
-        strategyResolver.SaveT(OpponentType.Elon, StrategyResolverByName
+        strategyResolver.AddT(OpponentType.Elon, StrategyResolverByName
             .ResolveStrategyByName(config["Opponents:ElonStrategy"]));
-        strategyResolver.SaveT(OpponentType.Mark, StrategyResolverByName
+        strategyResolver.AddT(OpponentType.Mark, StrategyResolverByName
             .ResolveStrategyByName(config["Opponents:MarkStrategy"]));
 
         services.AddScoped<IResolver<IStrategy>>(_ => strategyResolver);
     }
-
-    // private static void ConfigureDeckQueueNameResolver(IConfiguration config,
-    //     IServiceCollection services)
-    // {
-    //     var queueResolver = new Resolver<QueueName>();
-    //     queueResolver.SaveT(OpponentType.Elon, new QueueName{Value = config["Queues:ElonDecks"]});
-    //     queueResolver.SaveT(OpponentType.Mark, new QueueName{Value = config["Queues:MarkDecks"]});
-    //     services.AddScoped<IResolver<QueueName>>(_ => queueResolver);
-    // }
 }

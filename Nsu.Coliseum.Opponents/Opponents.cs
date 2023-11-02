@@ -15,6 +15,18 @@ public interface IOpponents
         OpponentType.Elon => OpponentType.Mark,
         OpponentType.Mark => OpponentType.Elon
     };
+
+    static string GetName(OpponentType type) => type switch
+    {
+        OpponentType.Elon => "Elon",
+        OpponentType.Mark => "Mark"
+    };
+
+    static OpponentType GetOpponentTypeByName(string name) => name switch
+    {
+        "Elon" => OpponentType.Elon,
+        "Mark" => OpponentType.Mark
+    };
 }
 
 public class Opponents : IOpponents

@@ -9,11 +9,10 @@ public class WebOpponents : IOpponents
 {
     private readonly IResolver<IStrategy> _strategyResolver;
 
-    private readonly Dictionary<OpponentType, HttpClient> _httpClients = new();
+    private readonly Dictionary<OpponentType, HttpClient> _clients = new();
+    private const string ControllerPath = "/api/Opponent/";
 
     private bool _strategiesSend;
-
-    private const string ControllerPath = "/api/Opponent/";
 
     private bool _appsChecked = false;
     private const int TryCount = 100;
@@ -22,10 +21,10 @@ public class WebOpponents : IOpponents
     public WebOpponents(IResolver<IStrategy> strategyResolver, IResolver<OpponentUrl> urlResolver,
         bool needToSendStrategies = false)
     {
-        _strategyResolver = strategyResolver;
-        _httpClients[OpponentType.Elon] = CreateHttpClient(urlResolver.GetT(OpponentType.Elon).Value);
-        _httpClients[OpponentType.Mark] = CreateHttpClient(urlResolver.GetT(OpponentType.Mark).Value);
+        _clients[OpponentType.Elon] = CreateHttpClient(urlResolver.GetT(OpponentType.Elon).Value);
+        _clients[OpponentType.Mark] = CreateHttpClient(urlResolver.GetT(OpponentType.Mark).Value);
 
+        _strategyResolver = strategyResolver;
         _strategiesSend = !needToSendStrategies;
     }
 
@@ -55,7 +54,7 @@ public class WebOpponents : IOpponents
     }
 
     private HttpResponseMessage SendStrategy(OpponentType opponentType) =>
-        _httpClients[opponentType].PostAsJsonAsync(ControllerPath + "SetStrategy",
+        _clients[opponentType].PostAsJsonAsync(ControllerPath + "SetStrategy",
             _strategyResolver.GetT(opponentType)).Result;
 
     private void CheckApps()
@@ -70,7 +69,7 @@ public class WebOpponents : IOpponents
         {
             try
             {
-                if (_httpClients[opponentType].GetAsync("").Result.IsSuccessStatusCode) return;
+                if (_clients[opponentType].GetAsync("").Result.IsSuccessStatusCode) return;
             }
             catch (Exception e)
             {
@@ -87,15 +86,14 @@ public class WebOpponents : IOpponents
     {
         if (!_appsChecked) CheckApps();
         if (!_strategiesSend) SendStrategies();
-        return _httpClients[type]
-            .PostAsJsonAsync(ControllerPath + urlPath,
-                new WebDeck { Cards = cards });
+        return _clients[type].PostAsJsonAsync(ControllerPath + urlPath,
+            new WebDeck { Cards = cards });
     }
 
-    private readonly string _useStrategyUrlPath = "UseStrategy";
+    private const string UseStrategyUrlPath = "UseStrategy";
 
     public int GetCardNumber(OpponentType type, Card[] cards) =>
-        GetCardNumberResponseTask(type, cards, _useStrategyUrlPath)
+        GetCardNumberResponseTask(type, cards, UseStrategyUrlPath)
             .Result
             .Content
             .ReadFromJsonAsync<int>()
@@ -103,7 +101,7 @@ public class WebOpponents : IOpponents
 
     public async Task<int> GetCardNumberAsync(OpponentType type, Card[] cards)
     {
-        HttpResponseMessage res = await GetCardNumberResponseTask(type, cards, _useStrategyUrlPath + "Async");
+        HttpResponseMessage res = await GetCardNumberResponseTask(type, cards, UseStrategyUrlPath + "Async");
         int cardNumber = await res.Content.ReadFromJsonAsync<int>();
         return cardNumber;
     }

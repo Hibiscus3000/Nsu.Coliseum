@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>Nsu.Coliseum.MassTransitOpponents</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Nsu.Coliseum.HttpClients\Nsu.Coliseum.HttpClients.csproj"/>
+        <ProjectReference Include="..\Nsu.Coliseum.Sandbox\Nsu.Coliseum.Sandbox.csproj"/>
+        <ProjectReference Include="..\Nsu.Coliseum.ReposAndResolvers\Nsu.Coliseum.ReposAndResolvers.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Reference Include="MassTransit.Abstractions">
+            <HintPath>..\..\..\.nuget\packages\masstransit.abstractions\8.0.0\lib\netstandard2.0\MassTransit.Abstractions.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="MassTransit" Version="8.0.0"/>
+        <PackageReference Include="MassTransit.RabbitMQ" Version="8.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.0"/>
+    </ItemGroup>
+
+</Project>
