@@ -42,7 +42,7 @@ public class ExperimentTests
         deckShufflerMock.Setup(m => m.ShuffleDeck(It.IsAny<Deck.Deck>()));
 
         _sut.Execute(new RandomDeckProvider(numberOfDecks: 1, numberOfCards: NumberOfCards,
-            deckShuffler: deckShufflerMock.Object).GetDeck());
+            deckShuffler: deckShufflerMock.Object).GetDeck()!);
 
         deckShufflerMock.Verify(m => m.ShuffleDeck(It.IsAny<Deck.Deck>()), Times.Once);
     }
@@ -68,8 +68,10 @@ public class ExperimentTests
 
         _deckShufflerStub.Setup(m => m.ShuffleDeck(It.IsAny<Deck.Deck>()))
             .Callback((Deck.Deck deck) => PredefinedDeckShuffle(deck));
+
         _sut.Execute(new RandomDeckProvider(numberOfDecks: 1, numberOfCards: NumberOfCards,
-            deckShuffler: _deckShufflerStub.Object).GetDeck());
+            deckShuffler: _deckShufflerStub.Object).GetDeck()!);
+
         Assert.Equal(1, _experimentContext.GetNumberOfExperiments());
         Assert.Equal(0, _experimentContext.GetNumberOfVictories());
     }
@@ -88,7 +90,8 @@ public class ExperimentTests
             });
 
         _sut.Execute(new RandomDeckProvider(numberOfDecks: 1, numberOfCards: NumberOfCards,
-            deckShuffler: _deckShufflerStub.Object).GetDeck());
+            deckShuffler: _deckShufflerStub.Object).GetDeck()!);
+
         Assert.Equal(1, _experimentContext.GetNumberOfExperiments());
         Assert.Equal(1, _experimentContext.GetNumberOfVictories());
     }

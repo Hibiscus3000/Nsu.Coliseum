@@ -29,9 +29,6 @@ public static class OpponentWebApi
 
         ConfigureWebStrategy(builder.Configuration, builder.Services);
 
-        // builder.Services.Configure<HostOptions>(opts =>
-        //     opts.ShutdownTimeout = TimeSpan.FromSeconds(TimeoutSecs));
-
         WebApplication app = builder.Build();
 
         if (app.Environment.IsDevelopment())
@@ -47,7 +44,6 @@ public static class OpponentWebApi
         app.UseAuthorization();
 
         app.MapControllers();
-        // TODO try strartasync with cancellation token
         app.Run();
     }
 

@@ -26,12 +26,6 @@ public class DatabaseTests : IDisposable
         Dispose(false);
     }
 
-    private ExperimentsContext CreateContext() => new(_contextOptions);
-
-    private IDeckProvider CreateDeckProvider(int numberOfDecks) => new RandomDeckProvider(numberOfDecks: numberOfDecks,
-        numberOfCards: 36,
-        deckShuffler: new DeckShuffler());
-
     public void Dispose()
     {
         Dispose(true);
@@ -45,10 +39,18 @@ public class DatabaseTests : IDisposable
         _disposed = true;
     }
 
+    private ExperimentsContext CreateContext() => new(_contextOptions);
+
+    private IDeckProvider CreateDeckProvider(int numberOfDecks) => new RandomDeckProvider(numberOfDecks: numberOfDecks,
+        numberOfCards: 36,
+        deckShuffler: new DeckShuffler());
+
+
     [Fact]
     public void AddThreeExperiments_ThreeExperimentsRead()
     {
         using var appContext = CreateContext();
+        var experimentRepository = new ExperimentRepository(appContext);
 
         int numberOfExperiments = 3;
 
@@ -58,33 +60,34 @@ public class DatabaseTests : IDisposable
         {
             var experimentEntity = new ExperimentEntity
             {
-                Deck = deckProvider.GetDeck()
+                Deck = deckProvider.GetDeck()!
             };
-            appContext.Experiments.Add(experimentEntity);
+            experimentRepository.AddExperiment(experimentEntity);
         }
 
         appContext.SaveChanges();
 
-        Assert.Equal(numberOfExperiments, appContext.Experiments.Count());
+        Assert.Equal(numberOfExperiments, experimentRepository.GetAllExperiments().Count());
     }
 
     [Fact]
     public void AddExperiment_ReadWrittenDeck()
     {
         using var appContext = CreateContext();
+        var experimentRepository = new ExperimentRepository(appContext);
 
         IDeckProvider deckProvider = CreateDeckProvider(1);
         Deck.Deck deck = deckProvider.GetDeck()!;
 
         Deck.Deck deckCopy = new Deck.Deck(deck);
 
-        appContext.Experiments.Add(new ExperimentEntity
+        experimentRepository.AddExperiment(new ExperimentEntity
         {
             Deck = deck
         });
 
         appContext.SaveChanges();
 
-        Assert.Equal(appContext.Experiments.First().Deck, deckCopy);
+        Assert.Equal(experimentRepository.GetAllExperiments().First().Deck, deckCopy);
     }
 }

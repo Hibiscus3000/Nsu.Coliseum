@@ -31,7 +31,7 @@ public class ExperimentEntity
 
 public class ExperimentsContext : DbContext
 {
-    public DbSet<ExperimentEntity> Experiments => Set<ExperimentEntity>();
+    internal DbSet<ExperimentEntity> Experiments => Set<ExperimentEntity>();
 
     private readonly string _connectionString;
 
@@ -63,4 +63,33 @@ public class ExperimentsContext : DbContext
     {
         return Directory.GetParent(callerFilePath).FullName;
     }
+}
+
+public interface IExperimentRepository
+{
+    IEnumerable<ExperimentEntity> GetAllExperiments();
+
+    void AddExperiment(ExperimentEntity experiment);
+
+    List<ExperimentEntity> GetExperimentsIdGreaterThen(int id, int amount);
+
+    void SaveChanges();
+}
+
+public class ExperimentRepository : IExperimentRepository
+{
+    private readonly ExperimentsContext _context;
+
+    public ExperimentRepository(ExperimentsContext context) => _context = context;
+
+    public IEnumerable<ExperimentEntity> GetAllExperiments() => _context.Experiments;
+
+    public void AddExperiment(ExperimentEntity experiment) => _context.Experiments.Add(experiment);
+
+    public List<ExperimentEntity> GetExperimentsIdGreaterThen(int id, int amount) => _context.Experiments
+        .Where(e => e.Id > id)
+        .Take(amount)
+        .ToList();
+
+    public void SaveChanges() => _context.SaveChanges();
 }

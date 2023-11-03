@@ -16,15 +16,16 @@ public class Program
             deckShuffler: new DeckShuffler());
 
         using var appContext = new ExperimentsContext();
+        var experimentRepository = new ExperimentRepository(appContext);
         for (int i = 0; i < numberOfExperiments; ++i)
         {
             var experimentEntity = new ExperimentEntity
             {
                 Deck = deckProvider.GetDeck()!
             };
-            appContext.Experiments.Add(experimentEntity);
+            experimentRepository.AddExperiment(experimentEntity);
         }
 
-        appContext.SaveChanges();
+        experimentRepository.SaveChanges();
     }
 }

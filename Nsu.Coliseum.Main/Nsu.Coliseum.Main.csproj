@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+      <ProjectReference Include="..\Nsu.Colisem.Database.DeckProvider\Nsu.Colisem.Database.DeckProvider.csproj"/>
     <ProjectReference Include="..\Nsu.Coliseum.Database\Nsu.Coliseum.Database.csproj"/>
       <ProjectReference Include="..\Nsu.Coliseum.MassTransit\Nsu.Coliseum.MassTransit.csproj"/>
       <ProjectReference Include="..\Nsu.Coliseum.OpponentWebAPI\Nsu.Coliseum.OpponentWebAPI.csproj"/>
