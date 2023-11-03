@@ -19,20 +19,20 @@ public class CardPickedConsumer : IConsumer<CardNumberPicked>
 
     private readonly MassTransitResolver<QueueName> _queues;
 
-    private readonly MassTransitOpponentType _opponentTypeType;
+    private readonly MassTransitOpponentType _opponentType;
 
     public CardPickedConsumer(ILogger<CardPickedConsumer> logger,
         IRepo<Card[]> deckRepo,
         IRepo<CardColor> cardColorRepo,
         MassTransitResolver<QueueName> queues,
-        MassTransitOpponentType opponentTypeType)
+        MassTransitOpponentType opponentType)
     {
         _logger = logger;
 
         _deckRepo = deckRepo;
         _cardColorRepo = cardColorRepo;
         _queues = queues;
-        _opponentTypeType = opponentTypeType;
+        _opponentType = opponentType;
     }
 
     public async Task Consume(ConsumeContext<CardNumberPicked> context)
@@ -67,10 +67,10 @@ public class CardPickedConsumer : IConsumer<CardNumberPicked>
             {
                 CorrelationId = id,
                 Success = success,
-                OpponentType = _opponentTypeType
+                OpponentType = _opponentType
             },
             ctx => _logger.LogDebug($"Sent CNA, GUID: {ctx.CorrelationId!.Value}"));
 
-        if (!success) throw new Exception($"{_opponentTypeType}: Unable to fetch deck for given GUID = {id}");
+        if (!success) throw new Exception($"{_opponentType}: Unable to fetch deck for given GUID = {id}");
     }
 }

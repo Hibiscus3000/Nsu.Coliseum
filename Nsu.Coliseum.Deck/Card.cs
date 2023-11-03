@@ -21,7 +21,7 @@ public class Card
 
         if (number < 0 || number > 8)
         {
-            throw new ArgumentOutOfRangeException("card number should be a number from 0 to 8 inclusive");
+            throw new ArgumentOutOfRangeException("Card number should be a number from 0 to 8 inclusive");
         }
 
         Number = number;
@@ -32,7 +32,7 @@ public class Card
             CardType.Diamond => CardColor.Red,
             CardType.Heart => CardColor.Red,
             CardType.Spade => CardColor.Black,
-            _ => throw new ArgumentException("unknown card type"),
+            _ => throw new ArgumentException("Unknown card type"),
         };
     }
 

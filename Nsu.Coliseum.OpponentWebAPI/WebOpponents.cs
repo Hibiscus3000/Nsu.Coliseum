@@ -1,3 +1,4 @@
+using System.Net;
 using Nsu.Coliseum.Deck;
 using Nsu.Coliseum.Opponents;
 using Nsu.Coliseum.StrategyInterface;
@@ -45,9 +46,8 @@ public class WebOpponents : IOpponents
         foreach (OpponentType opponentType in Enum.GetValues(typeof(OpponentType)))
         {
             HttpResponseMessage responseMessage = SendStrategy(opponentType);
-            if (responseMessage.IsSuccessStatusCode)
-                throw new Exception($"Unable to send strategies to {opponentType}." +
-                                    $"Status code: {responseMessage.StatusCode}.");
+            if (!responseMessage.IsSuccessStatusCode)
+                throw new StrategySendException(opponentType, responseMessage.StatusCode);
         }
 
         _strategiesSend = true;
@@ -78,7 +78,7 @@ public class WebOpponents : IOpponents
             Thread.Sleep(WaitTimeoutMillis);
         }
 
-        throw new Exception($"Unable to establish connection to {opponentType} app.");
+        throw new OpponentConnectionException(opponentType);
     }
 
     public Task<HttpResponseMessage> GetCardNumberResponseTask(OpponentType type, Card[] cards,
@@ -104,5 +104,45 @@ public class WebOpponents : IOpponents
         HttpResponseMessage res = await GetCardNumberResponseTask(type, cards, UseStrategyUrlPath + "Async");
         int cardNumber = await res.Content.ReadFromJsonAsync<int>();
         return cardNumber;
+    }
+}
+
+public class StrategySendException : Exception
+{
+    public StrategySendException()
+    {
+    }
+
+    public StrategySendException(OpponentType opponentType, HttpStatusCode statusCode)
+        : base($"Unable to send strategy to {opponentType}, status code: {statusCode}")
+    {
+    }
+
+    public StrategySendException(string? message) : base(message)
+    {
+    }
+
+    public StrategySendException(string? message, Exception? innerException) : base(message, innerException)
+    {
+    }
+}
+
+public class OpponentConnectionException : Exception
+{
+    public OpponentConnectionException()
+    {
+    }
+
+    public OpponentConnectionException(OpponentType opponentType) : base(
+        $"Unable to establish connection to {opponentType} app.")
+    {
+    }
+
+    public OpponentConnectionException(string? message) : base(message)
+    {
+    }
+
+    public OpponentConnectionException(string? message, Exception? innerException) : base(message, innerException)
+    {
     }
 }
