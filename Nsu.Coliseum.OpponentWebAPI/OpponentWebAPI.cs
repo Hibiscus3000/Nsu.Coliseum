@@ -29,6 +29,12 @@ public static class OpponentWebApi
 
         ConfigureWebStrategy(builder.Configuration, builder.Services);
 
+        builder.Host.UseDefaultServiceProvider((_, options) =>
+        {
+            options.ValidateScopes = true;
+            options.ValidateOnBuild = true;
+        });
+
         WebApplication app = builder.Build();
 
         if (app.Environment.IsDevelopment())

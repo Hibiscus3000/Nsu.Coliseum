@@ -38,12 +38,17 @@ public class Program
                 ConfigureUrlResolver(config, services);
                 ConfigureStrategyResolver(config, services);
                 ConfigureOpponents(config, services);
+            })
+            .UseDefaultServiceProvider((_, options) =>
+            {
+                options.ValidateScopes = true;
+                options.ValidateOnBuild = true;
             });
     }
 
     private static void ConfigureDeckSizeAndExperimentsNum(IConfiguration config,
         IServiceCollection services) =>
-        services.AddScoped<DeckSizeAndNumOfDecks>(_ => new DeckSizeAndNumOfDecks
+        services.AddSingleton<DeckSizeAndNumOfDecks>(_ => new DeckSizeAndNumOfDecks
         {
             NumberOfCardsInDeck = null != config["NumberOfCards"] &&
                                   int.TryParse(config["NumberOfCards"], out int resultNC)
@@ -61,10 +66,10 @@ public class Program
         switch (config["DeckProvider"])
         {
             case "random":
-                services.AddScoped<IDeckProvider, RandomDeckProvider>();
+                services.AddSingleton<IDeckProvider, RandomDeckProvider>();
                 break;
             case "database":
-                services.AddScoped<IDeckProvider, DbDeckProvider>();
+                services.AddSingleton<IDeckProvider, DbDeckProvider>();
                 break;
         }
     }
@@ -75,16 +80,16 @@ public class Program
         switch (config["ExperimentRunnerType"])
         {
             case "default":
-                services.AddScoped<IExperimentRunner, ExperimentRunner>();
+                services.AddSingleton<IExperimentRunner, ExperimentRunner>();
                 break;
             case "async":
-                services.AddScoped<IExperimentRunner, ExperimentRunnerAsync>();
+                services.AddSingleton<IExperimentRunner, ExperimentRunnerAsync>();
                 break;
             case "mass-transit":
-                services.AddScoped<IExperimentRunner, MassTransitExperimentRunner>();
+                services.AddSingleton<IExperimentRunner, MassTransitExperimentRunner>();
 
                 MassTransitResolver<QueueName> queues = QueuesAndRoutingKeys.GetMainQueueNames();
-                services.AddScoped<MassTransitResolver<QueueName>>(_ => queues);
+                services.AddSingleton<MassTransitResolver<QueueName>>(_ => queues);
                 services.AddSingleton<IRepo<CardColor>, Repo<CardColor>>();
                 services.AddMassTransit(configurator =>
                 {
@@ -111,10 +116,10 @@ public class Program
         switch (config["Opponents:Type"])
         {
             case "web":
-                services.AddScoped<IOpponents, WebOpponents>();
+                services.AddSingleton<IOpponents, WebOpponents>();
                 break;
             case "default":
-                services.AddScoped<IOpponents, Opponents.Opponents>();
+                services.AddSingleton<IOpponents, Opponents.Opponents>();
                 break;
         }
     }
@@ -126,7 +131,7 @@ public class Program
         urlResolver.AddT(OpponentType.Elon, new OpponentUrl { Value = config["Opponents:ElonUrl"] });
         urlResolver.AddT(OpponentType.Mark, new OpponentUrl { Value = config["Opponents:MarkUrl"] });
 
-        services.AddScoped<IResolver<OpponentUrl>>(_ => urlResolver);
+        services.AddSingleton<IResolver<OpponentUrl>>(_ => urlResolver);
     }
 
     private static void ConfigureStrategyResolver(IConfiguration config,
@@ -138,6 +143,6 @@ public class Program
         strategyResolver.AddT(OpponentType.Mark, StrategyResolverByName
             .ResolveStrategyByName(config["Opponents:MarkStrategy"]));
 
-        services.AddScoped<IResolver<IStrategy>>(_ => strategyResolver);
+        services.AddSingleton<IResolver<IStrategy>>(_ => strategyResolver);
     }
 }
