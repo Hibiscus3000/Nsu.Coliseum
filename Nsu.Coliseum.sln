@@ -33,7 +33,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nsu.Coliseum.Opponents", "N
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nsu.Coliseum.ReposAndResolvers", "Nsu.Coliseum.ReposAndResolvers\Nsu.Coliseum.ReposAndResolvers.csproj", "{D8257AB3-AE85-4D3F-81E0-B4434F53C9D4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nsu.Colisem.Database.DeckProvider", "Nsu.Colisem.Database.DeckProvider\Nsu.Colisem.Database.DeckProvider.csproj", "{4E724644-9071-4B86-A137-539B282474D0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nsu.Coliseum.Database.DeckProvider", "Nsu.Coliseum.Database.DeckProvider\Nsu.Coliseum.Database.DeckProvider.csproj", "{4E724644-9071-4B86-A137-539B282474D0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

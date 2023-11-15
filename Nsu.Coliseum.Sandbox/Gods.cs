@@ -60,13 +60,25 @@ public class Gods : IHostedService
         _logger.LogDebug("Finished waiting experiment results");
 
         _logger.LogInformation(_experimentContext.ToString());
-
-        _appLifetime.StopApplication();
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
-        Task.Run(Play, cancellationToken);
+        Task.Run(async () =>
+        {
+            try
+            {
+                await Play();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message + Environment.NewLine + e.StackTrace);
+            }
+            finally
+            {
+                _appLifetime.StopApplication();
+            }
+        }, cancellationToken);
         return Task.CompletedTask;
     }
 

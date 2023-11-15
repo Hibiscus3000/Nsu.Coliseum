@@ -8,7 +8,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Nsu.Coliseum.HttpClients\Nsu.Coliseum.HttpClients.csproj"/>
         <ProjectReference Include="..\Nsu.Coliseum.Sandbox\Nsu.Coliseum.Sandbox.csproj"/>
         <ProjectReference Include="..\Nsu.Coliseum.ReposAndResolvers\Nsu.Coliseum.ReposAndResolvers.csproj"/>
     </ItemGroup>

@@ -1,4 +1,5 @@
-﻿using MassTransit;
+﻿using System.Net.Security;
+using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -28,9 +29,7 @@ public class Program
             .ConfigureServices((hostContext, services) =>
             {
                 IConfiguration config = hostContext.Configuration;
-
                 services.AddHostedService<Gods>();
-
                 ConfigureDeckSizeAndExperimentsNum(config, services);
                 services.AddSingleton<IExperimentContext, ExperimentContext>();
                 ConfigureExperimentRunner(config, services);
@@ -59,7 +58,7 @@ public class Program
                 ? resultNE
                 : 36
         });
-
+    
     private static void ConfigureDeckProvider(IConfiguration config,
         IServiceCollection services)
     {

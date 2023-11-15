@@ -35,20 +35,17 @@ public class ExperimentsContext : DbContext
 
     private readonly string _connectionString;
 
-    public ExperimentsContext(DbContextOptions options) : base(options)
-    {
-        Database.EnsureCreated();
-    }
+    public ExperimentsContext(DbContextOptions options) : base(options) => Database.EnsureCreated();
 
     public ExperimentsContext()
     {
-        string projectPath = GetProjectPath();
         var builder = new ConfigurationBuilder();
-        builder.SetBasePath(projectPath);
         builder.AddJsonFile("appsettings.json");
         var config = builder.Build();
 
-        _connectionString = "DataSource=" + projectPath + "/" + config.GetConnectionString("DataSource");
+        _connectionString = "DataSource=" + GetProjectPath() + "/" + config.GetConnectionString("DataSource");
+        
+        Database.EnsureCreated();
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
