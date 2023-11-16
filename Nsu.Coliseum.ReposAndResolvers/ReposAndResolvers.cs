@@ -13,10 +13,7 @@ public class Repo<T> : IRepo<T>
 {
     private readonly IDictionary<Guid, T> _repoDict = new ConcurrentDictionary<Guid, T>();
 
-    public void AddT(Guid id, T t)
-    {
-        if (!_repoDict.TryAdd(id, t)) _repoDict[id] = t;
-    }
+    public void AddT(Guid id, T t) => _repoDict.Add(id, t);
 
     public T? GetT(Guid id) => _repoDict.TryGetValue(id, out T value) ? value : default;
 

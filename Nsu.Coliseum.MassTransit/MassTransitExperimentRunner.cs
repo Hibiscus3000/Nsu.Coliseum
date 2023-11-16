@@ -2,11 +2,10 @@ using MassTransit;
 using Microsoft.Extensions.Logging;
 using Nsu.Coliseum.Deck;
 using Nsu.Coliseum.MassTransit.Contracts;
-using Nsu.Coliseum.MassTransitOpponents;
 using Nsu.Coliseum.Sandbox;
 using ReposAndResolvers;
 
-namespace Nsu.Coliseum.MassTransit.Consumers;
+namespace Nsu.Coliseum.MassTransit;
 
 public class MassTransitExperimentRunner : IExperimentRunner
 {

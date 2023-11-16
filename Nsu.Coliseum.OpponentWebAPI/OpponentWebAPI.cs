@@ -1,9 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using MassTransit;
 using Nsu.Coliseum.Deck;
+using Nsu.Coliseum.MassTransit;
 using Nsu.Coliseum.MassTransit.Consumers;
 using Nsu.Coliseum.MassTransit.Contracts;
-using Nsu.Coliseum.MassTransitOpponents;
 using Nsu.Coliseum.Opponents;
 using Nsu.Coliseum.Strategies;
 using Nsu.Coliseum.StrategyInterface;
@@ -76,7 +76,10 @@ public static class OpponentWebApi
         services.AddSingleton<MassTransitResolver<RoutingKey>>(_ => routingKeys);
 
         services.AddSingleton<IRepo<CardColor>, Repo<CardColor>>();
-        services.AddSingleton<IRepo<Card[]>, Repo<Card[]>>();
+        
+        services.AddSingleton<Acknowledger>();
+        services.AddSingleton<DeckAndCardNumRepository>();
+        
         services.AddSingleton<IStrategy>(_ => StrategyResolverByName.ResolveStrategyByName(config["Strategy"]!));
 
         AddMassTransit(opponentType, queues, routingKeys, services);
@@ -91,7 +94,7 @@ public static class OpponentWebApi
         services.AddMassTransit(configurator =>
         {
             configurator.AddConsumer<PickCardFromDeckConsumer>();
-            configurator.AddConsumer<CardPickedConsumer>();
+            configurator.AddConsumer<CardNumberPickedConsumer>();
 
             configurator.UsingRabbitMq((context, cfg) =>
             {
@@ -116,7 +119,7 @@ public static class OpponentWebApi
                         b.RoutingKey = routingKeys.GetName(QueueType.CardNumber).Value;
                     });
 
-                    e.ConfigureConsumer<CardPickedConsumer>(context);
+                    e.ConfigureConsumer<CardNumberPickedConsumer>(context);
                 });
             });
         });

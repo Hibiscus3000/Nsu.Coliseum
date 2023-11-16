@@ -43,7 +43,7 @@ public class Gods : IHostedService
         {
             _experimentRunner.Execute(deck);
             ++numberOfExperiments;
-            _logger.LogDebug($"Ran {numberOfExperiments} experiments");
+            _logger.LogInformation($"Ran {numberOfExperiments} experiments");
         }
 
         _logger.LogDebug("Finished running experiments");
@@ -51,9 +51,15 @@ public class Gods : IHostedService
         _logger.LogDebug("Starting to wait experiment results");
 
         int numberOfExperimentsFinished;
+        int numberOfExperimentsFinishedPrev = 0;
         while (numberOfExperiments != (numberOfExperimentsFinished = _experimentContext.GetNumberOfExperiments()))
         {
-            _logger.LogDebug($"{numberOfExperimentsFinished}/{numberOfExperiments} experiments finished");
+            if (numberOfExperimentsFinishedPrev != numberOfExperimentsFinishedPrev)
+            {
+                _logger.LogInformation($"{numberOfExperimentsFinished}/{numberOfExperiments} experiments finished");
+                numberOfExperimentsFinishedPrev = numberOfExperimentsFinished;
+            }
+
             await Task.Delay(MillisecondsDelay);
         }
 

@@ -2,45 +2,48 @@ using MassTransit;
 using Microsoft.Extensions.Logging;
 using Nsu.Coliseum.Deck;
 using Nsu.Coliseum.MassTransit.Contracts;
-using Nsu.Coliseum.MassTransitOpponents;
 using Nsu.Coliseum.StrategyInterface;
-using ReposAndResolvers;
 
 namespace Nsu.Coliseum.MassTransit.Consumers;
 
 public class PickCardFromDeckConsumer : IConsumer<PickCardFromDeck>
 {
-    private readonly ILogger<CardPickedConsumer> _logger;
-
-    private readonly IRepo<Card[]> _deckRepo;
+    private readonly ILogger<CardNumberPickedConsumer> _logger;
     private readonly MassTransitResolver<RoutingKey> _routingKeysResolver;
+
+    private readonly Acknowledger _acknowledger;
 
     private readonly IStrategy _strategy;
 
-    public PickCardFromDeckConsumer(ILogger<CardPickedConsumer> logger,
-        IRepo<Card[]> deckRepo,
+    public PickCardFromDeckConsumer(ILogger<CardNumberPickedConsumer> logger,
         MassTransitResolver<RoutingKey> routingKeysResolver,
+        Acknowledger acknowledger,
         IStrategy strategy)
     {
         _logger = logger;
-
-        _deckRepo = deckRepo;
         _routingKeysResolver = routingKeysResolver;
 
+        _acknowledger = acknowledger;
+        
         _strategy = strategy;
     }
 
     public async Task Consume(ConsumeContext<PickCardFromDeck> context)
     {
-        Card[] cards = context.Message.Deck;
         Guid id = context.CorrelationId!.Value;
 
-        _deckRepo.AddT(id, cards);
-        _logger.LogDebug($"Received deck, GUID: {id}");
+        int cardNumber = await _strategy.PickCardAsync(context.Message.Deck);
+        
         await context.Publish(new CardNumberPicked
         {
             CorrelationId = id,
-            CardNumber = await _strategy.PickCardAsync(cards)
-        }, x => x.SetRoutingKey(_routingKeysResolver.GetName(QueueType.CardNumber).Value));
+            CardNumber = cardNumber
+        }, x =>
+        {
+            x.SetRoutingKey(_routingKeysResolver.GetName(QueueType.CardNumber).Value);
+            _logger.LogDebug($"Sent CardNumberPicked Message, id: {id}, card number: {cardNumber}");
+        });
+
+        await _acknowledger.AddDeckAndSendAck(context);
     }
 }

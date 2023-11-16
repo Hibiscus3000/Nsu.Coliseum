@@ -1,7 +1,7 @@
 using Nsu.Coliseum.Opponents;
 using ReposAndResolvers;
 
-namespace Nsu.Coliseum.MassTransitOpponents;
+namespace Nsu.Coliseum.MassTransit;
 
 public enum QueueType
 {
