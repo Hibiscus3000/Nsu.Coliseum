@@ -53,39 +53,25 @@ public class TupleRepository<F,S>
     
     private object _repoLock = new();
 
-    public bool AddFirst(long experimentNum, F first)
+    public (bool ready, S? item) AddFirstOrGetSecond(long experimentNum, F first)
     {
         lock (_repoLock)
         {
-            if (_dict.TryGetValue(experimentNum, out var t))
-            {
-                t.Item1 = first;
-                _dict[experimentNum] = t;
-                return true;
-            }
+            if (_dict.TryGetValue(experimentNum, out var t)) return (true, t.Item2);
 
             _dict.Add(experimentNum, (first, default));
-            return false;
+            return default;
         }
     }
     
-    public bool AddSecond(long experimentNum, S second)
+    public (bool ready, F? item) AddSecondOrGetFirst(long experimentNum, S second)
     {
         lock (_repoLock)
         {
-            if (_dict.TryGetValue(experimentNum, out var t))
-            {
-                t.Item2 = second;
-                _dict[experimentNum] = t;
-                return true;
-            }
+            if (_dict.TryGetValue(experimentNum, out var t)) return (true, t.Item1);
 
             _dict.Add(experimentNum, (default, second));
-            return false;
+            return default;
         }
     }
-    
-    public F GetFirst(long experimentNum) => _dict[experimentNum].Item1!;
-    
-    public S GetSecond(long experimentNum) => _dict[experimentNum].Item2!;
 } 

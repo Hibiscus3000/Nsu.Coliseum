@@ -59,11 +59,11 @@ public class CardNumberAcceptedConsumer : IConsumer<CardNumberAccepted>
 
     private void AddCardColorToStorage(long experimentNum, OpponentType opponentType, CardColor cardColor)
     {
-        bool expResultReady = (0 == opponentType) ? _temporaryCardColorStorage.AddFirst(experimentNum, cardColor) :
-            _temporaryCardColorStorage.AddSecond(experimentNum, cardColor);
+        (bool ready ,CardColor? val) anotherColor = (0 == opponentType)
+            ? _temporaryCardColorStorage.AddFirstOrGetSecond(experimentNum, cardColor) :
+            _temporaryCardColorStorage.AddSecondOrGetFirst(experimentNum, cardColor);
         _logger.LogDebug($"{experimentNum}: added CC to temporary storage, opponent: {opponentType}, card color: {cardColor}");
 
-        if (expResultReady) _experimentContext.AddExperimentResult(
-            _temporaryCardColorStorage.GetFirst(experimentNum) == _temporaryCardColorStorage.GetSecond(experimentNum));
+        if (anotherColor.ready) _experimentContext.AddExperimentResult(anotherColor.val == cardColor);
     }
 }

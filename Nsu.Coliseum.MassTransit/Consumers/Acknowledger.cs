@@ -37,25 +37,35 @@ public sealed class Acknowledger
     {
         CardNumberPicked cardNumberPicked = context.Message;
         long experimentNum = context.Message.ExperimentNum;
-        if (_deckAndCardNumRepository.AddSecond(experimentNum : experimentNum, second: cardNumberPicked.CardNumber))
-            SendCardNumberAcceptedMessage(experimentNum, await GetSendEndpoint(context));;
+        
+        int cardNumber = cardNumberPicked.CardNumber;
+        (bool ready, Card[]? val) deck = _deckAndCardNumRepository.AddSecondOrGetFirst(experimentNum: experimentNum, second: cardNumber);
+        
+        if (deck.ready)
+            await SendCardNumberAcceptedMessage(experimentNum, await GetSendEndpoint(context), deck.val!, cardNumber);
     }
 
     public async Task AddDeckAndSendAck(ConsumeContext<PickCardFromDeck> context)
     {
         PickCardFromDeck pickCardFromDeck = context.Message;
-        long experimentNum = context.Message.ExperimentNum; 
-        if (_deckAndCardNumRepository.AddFirst(experimentNum : experimentNum, first: pickCardFromDeck.Deck))
-            SendCardNumberAcceptedMessage(experimentNum, await GetSendEndpoint(context));
+        long experimentNum = context.Message.ExperimentNum;
+        
+        Card[] deck = pickCardFromDeck.Deck;
+        (bool ready, int? val) cardNumber =
+            _deckAndCardNumRepository.AddFirstOrGetSecond(experimentNum: experimentNum, first: deck);
+        
+        if (cardNumber.ready)
+            await SendCardNumberAcceptedMessage(experimentNum, await GetSendEndpoint(context), deck, cardNumber.val!.Value);
     }
 
     private async Task<ISendEndpoint> GetSendEndpoint(ConsumeContext context) =>
         await context.GetSendEndpoint(new Uri("exchange:" + _queues.GetName(QueueType.CardNumberAccepted).Value));
     
-    private async Task SendCardNumberAcceptedMessage(long experimentNum, ISendEndpoint sendEndpoint)
+    private async Task SendCardNumberAcceptedMessage(long experimentNum,
+        ISendEndpoint sendEndpoint,
+        Card[] deck,
+        int cardNumber)
     {
-        Card[] deck = _deckAndCardNumRepository.GetFirst(experimentNum);
-        int cardNumber = _deckAndCardNumRepository.GetSecond(experimentNum);
         CardColor cardColor = deck[cardNumber].CardColor;
         _cardColorRepo.AddT(experimentNum, cardColor);
         
