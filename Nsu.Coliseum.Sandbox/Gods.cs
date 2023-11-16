@@ -35,28 +35,31 @@ public class Gods : IHostedService
     {
         Deck.Deck? deck;
 
-        int numberOfExperiments = 0;
+        long numberOfExperiments = 0;
 
         _logger.LogDebug("Starting experiments");
 
+        var experimentTasks = new List<Task>();
+        
         while (null != (deck = _deckProvider.GetDeck()))
         {
-            _experimentRunner.Execute(deck);
-            ++numberOfExperiments;
-            _logger.LogInformation($"Ran {numberOfExperiments} experiments");
+            experimentTasks.Add(_experimentRunner.Execute(numberOfExperiments++, deck));
+            _logger.LogDebug($"Started {numberOfExperiments} experiments");
         }
 
-        _logger.LogDebug("Finished running experiments");
+        _logger.LogDebug("Finished starting experiments");
 
         _logger.LogDebug("Starting to wait experiment results");
 
-        int numberOfExperimentsFinished;
-        int numberOfExperimentsFinishedPrev = 0;
+        await Task.WhenAll(experimentTasks);
+        
+        long numberOfExperimentsFinished;
+        long numberOfExperimentsFinishedPrev = 0;
         while (numberOfExperiments != (numberOfExperimentsFinished = _experimentContext.GetNumberOfExperiments()))
         {
             if (numberOfExperimentsFinishedPrev != numberOfExperimentsFinishedPrev)
             {
-                _logger.LogInformation($"{numberOfExperimentsFinished}/{numberOfExperiments} experiments finished");
+                _logger.LogDebug($"{numberOfExperimentsFinished}/{numberOfExperiments} experiments finished");
                 numberOfExperimentsFinishedPrev = numberOfExperimentsFinished;
             }
 

@@ -7,7 +7,7 @@ namespace Nsu.Coliseum.Sandbox;
 
 public interface IExperimentRunner
 {
-    public Task Execute(Deck.Deck deck);
+    public Task Execute(long experimentNum, Deck.Deck deck);
 }
 
 public abstract class AbstractExperimentRunner : IExperimentRunner
@@ -21,7 +21,7 @@ public abstract class AbstractExperimentRunner : IExperimentRunner
         ExperimentContext = experimentContext;
     }
 
-    public abstract Task Execute(Deck.Deck deck);
+    public abstract Task Execute(long experimentNum, Deck.Deck deck);
 }
 
 public class ExperimentRunner : AbstractExperimentRunner
@@ -31,7 +31,7 @@ public class ExperimentRunner : AbstractExperimentRunner
     {
     }
 
-    public override Task Execute(Deck.Deck deck)
+    public override Task Execute(long experimentNum, Deck.Deck deck)
     {
         Card[][] splitedDeck = deck.Split(2);
 
@@ -55,7 +55,7 @@ public class ExperimentRunnerAsync : AbstractExperimentRunner
     {
     }
 
-    public override async Task Execute(Deck.Deck deck)
+    public override async Task Execute(long experimentNum, Deck.Deck deck)
     {
         Card[][] splitedDeck = deck.Split(2);
 
@@ -74,16 +74,16 @@ public interface IExperimentContext
 {
     public void AddExperimentResult(bool victory);
 
-    public int GetNumberOfExperiments();
-    public int GetNumberOfVictories();
+    public long GetNumberOfExperiments();
+    public long GetNumberOfVictories();
 }
 
 public class ExperimentContext : IExperimentContext
 {
     private readonly ILogger<ExperimentContext> _logger;
 
-    private int _numberOfExperiments = 0;
-    private int _numberOfVictories = 0;
+    private long _numberOfExperiments = 0;
+    private long _numberOfVictories = 0;
 
     public ExperimentContext(ILogger<ExperimentContext> logger) => _logger = logger;
 
@@ -95,9 +95,9 @@ public class ExperimentContext : IExperimentContext
             $"Added experiment result in context, Total: {_numberOfExperiments}, Victories: {_numberOfVictories}");
     }
 
-    public int GetNumberOfExperiments() => _numberOfExperiments;
+    public long GetNumberOfExperiments() => _numberOfExperiments;
 
-    public int GetNumberOfVictories() => _numberOfVictories;
+    public long GetNumberOfVictories() => _numberOfVictories;
 
     public override string ToString()
     {

@@ -20,8 +20,7 @@ public class CardNumberPickedConsumer : IConsumer<CardNumberPicked>
 
     public async Task Consume(ConsumeContext<CardNumberPicked> context)
     {
-        Guid id = context.CorrelationId!.Value;
-        _logger.LogDebug($"Received CNP, GUID: {id}, card number: {context.Message.CardNumber}");
+        _logger.LogDebug($"{context.Message.ExperimentNum}: CNP, card number: {context.Message.CardNumber}");
         await _acknowledger.AddCardNumberAndSendAck(context);
     }
 }

@@ -2,9 +2,9 @@ using MassTransit;
 
 namespace Nsu.Coliseum.MassTransit.Contracts
 {
-    public record CardNumberPicked : CorrelatedBy<Guid>
+    public record CardNumberPicked
     {
         public int CardNumber { get; init; }
-        public Guid CorrelationId { get; init; }
+        public long ExperimentNum { get; init; }
     }
 }

@@ -10,7 +10,7 @@ public class ExperimentTests
 {
     private const int NumberOfCards = 36;
 
-    private readonly Resolver<IStrategy> _strategyResolver;
+    private readonly IResolver<IStrategy> _strategyResolver;
     private IExperimentRunner _sut;
     private IExperimentContext _experimentContext;
 
@@ -41,7 +41,7 @@ public class ExperimentTests
         var deckShufflerMock = new Mock<IDeckShuffler>();
         deckShufflerMock.Setup(m => m.ShuffleDeck(It.IsAny<Deck.Deck>()));
 
-        _sut.Execute(new RandomDeckProvider(numberOfDecks: 1, numberOfCards: NumberOfCards,
+        _sut.Execute(0, new RandomDeckProvider(numberOfDecks: 1, numberOfCards: NumberOfCards,
             deckShuffler: deckShufflerMock.Object).GetDeck()!);
 
         deckShufflerMock.Verify(m => m.ShuffleDeck(It.IsAny<Deck.Deck>()), Times.Once);
@@ -69,7 +69,7 @@ public class ExperimentTests
         _deckShufflerStub.Setup(m => m.ShuffleDeck(It.IsAny<Deck.Deck>()))
             .Callback((Deck.Deck deck) => PredefinedDeckShuffle(deck));
 
-        _sut.Execute(new RandomDeckProvider(numberOfDecks: 1, numberOfCards: NumberOfCards,
+        _sut.Execute(0, new RandomDeckProvider(numberOfDecks: 1, numberOfCards: NumberOfCards,
             deckShuffler: _deckShufflerStub.Object).GetDeck()!);
 
         Assert.Equal(1, _experimentContext.GetNumberOfExperiments());
@@ -89,7 +89,7 @@ public class ExperimentTests
                 (cards[18], cards[19]) = (cards[19], cards[18]);
             });
 
-        _sut.Execute(new RandomDeckProvider(numberOfDecks: 1, numberOfCards: NumberOfCards,
+        _sut.Execute(0, new RandomDeckProvider(numberOfDecks: 1, numberOfCards: NumberOfCards,
             deckShuffler: _deckShufflerStub.Object).GetDeck()!);
 
         Assert.Equal(1, _experimentContext.GetNumberOfExperiments());

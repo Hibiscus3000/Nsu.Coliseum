@@ -89,7 +89,7 @@ public class Program
 
                 MassTransitResolver<QueueName> queues = QueuesAndRoutingKeys.GetMainQueueNames();
                 services.AddSingleton<MassTransitResolver<QueueName>>(_ => queues);
-                services.AddSingleton<IRepo<CardColor>, Repo<CardColor>>();
+                services.AddSingleton<TupleRepository<CardColor, CardColor>>();
                 services.AddMassTransit(configurator =>
                 {
                     configurator.AddConsumer<CardNumberAcceptedConsumer>();
@@ -136,7 +136,7 @@ public class Program
     private static void ConfigureStrategyResolver(IConfiguration config,
         IServiceCollection services)
     {
-        Resolver<IStrategy> strategyResolver = new Resolver<IStrategy>();
+        IResolver<IStrategy> strategyResolver = new Resolver<IStrategy>();
         strategyResolver.AddT(OpponentType.Elon, StrategyResolverByName
             .ResolveStrategyByName(config["Opponents:ElonStrategy"]));
         strategyResolver.AddT(OpponentType.Mark, StrategyResolverByName

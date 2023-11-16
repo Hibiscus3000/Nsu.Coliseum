@@ -2,10 +2,9 @@
 
 namespace Nsu.Coliseum.Database;
 
-//TODO add number of experiments limit
 public class DbDeckProvider : IDeckProvider
 {
-    private const int ReadAtOnce = 20;
+    private const int ReadAtOnce = 100;
 
     private List<ExperimentEntity>? _experimentEntities = null;
 
@@ -31,7 +30,7 @@ public class DbDeckProvider : IDeckProvider
             _experimentEntities = null;
             return;
         }
-
+        
         using var appContext = new ExperimentsContext();
         var experimentRepository = new ExperimentRepository(appContext);
 

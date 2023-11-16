@@ -4,20 +4,20 @@ namespace ReposAndResolvers;
 
 public interface IRepo<T>
 {
-    void AddT(Guid id, T color);
-    T? GetT(Guid id);
-    bool ContainsId(Guid id);
+    void AddT(long experimentNum, T color);
+    T? GetT(long experimentNum);
+    bool ContainsExpNum(long experimentNum);
 }
 
 public class Repo<T> : IRepo<T>
 {
-    private readonly IDictionary<Guid, T> _repoDict = new ConcurrentDictionary<Guid, T>();
+    private readonly IDictionary<long, T> _repoDict = new ConcurrentDictionary<long, T>();
 
-    public void AddT(Guid id, T t) => _repoDict.Add(id, t);
+    public void AddT(long experimentNum, T t) => _repoDict.Add(experimentNum, t);
 
-    public T? GetT(Guid id) => _repoDict.TryGetValue(id, out T value) ? value : default;
+    public T? GetT(long experimentNum) => _repoDict[experimentNum];
 
-    public bool ContainsId(Guid id) => _repoDict.ContainsKey(id);
+    public bool ContainsExpNum(long experimentNum) => _repoDict.ContainsKey(experimentNum);
 }
 
 public enum OpponentType
@@ -46,3 +46,46 @@ public class Resolver<T> : IResolver<T>
 
     public T GetT(OpponentType type) => _resolverDict[type];
 }
+
+public class TupleRepository<F,S>
+{
+    private IDictionary<long, (F?, S?)> _dict = new Dictionary<long, (F? deck, S? cardNumber)>();
+    
+    private object _repoLock = new();
+
+    public bool AddFirst(long experimentNum, F first)
+    {
+        lock (_repoLock)
+        {
+            if (_dict.TryGetValue(experimentNum, out var t))
+            {
+                t.Item1 = first;
+                _dict[experimentNum] = t;
+                return true;
+            }
+
+            _dict.Add(experimentNum, (first, default));
+            return false;
+        }
+    }
+    
+    public bool AddSecond(long experimentNum, S second)
+    {
+        lock (_repoLock)
+        {
+            if (_dict.TryGetValue(experimentNum, out var t))
+            {
+                t.Item2 = second;
+                _dict[experimentNum] = t;
+                return true;
+            }
+
+            _dict.Add(experimentNum, (default, second));
+            return false;
+        }
+    }
+    
+    public F GetFirst(long experimentNum) => _dict[experimentNum].Item1!;
+    
+    public S GetSecond(long experimentNum) => _dict[experimentNum].Item2!;
+} 

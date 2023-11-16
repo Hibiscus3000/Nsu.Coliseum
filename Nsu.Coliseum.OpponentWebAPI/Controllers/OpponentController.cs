@@ -55,19 +55,17 @@ namespace OpponentWebAPI.Controllers
         }
 
         [HttpGet(template: "GetCardColor")]
-        public async Task<Results<Ok<CardColor>, BadRequest<string>>> GetCardColor([FromQuery] string guid,
+        public async Task<Results<Ok<CardColor>, BadRequest<string>>> GetCardColor([FromQuery] long experimentNum,
             [FromServices] IRepo<CardColor> cardColorRepo)
         {
-            if (!Guid.TryParse(guid, out Guid id)) return TypedResults.BadRequest("Invalid GUID");
-            if (!cardColorRepo.ContainsId(id)) await Task.Delay(1000);
-            if (!cardColorRepo.ContainsId(id))
+            if (!cardColorRepo.ContainsExpNum(experimentNum))
             {
-                _logger.LogWarning($"Unable to find card color, GUID: {id}");
-                return TypedResults.BadRequest("No such GUID");
+                _logger.LogWarning($"{experimentNum}: unable to find card color!");
+                return TypedResults.BadRequest("No such EXP NUM");
             }
 
-            CardColor cardColor = cardColorRepo.GetT(id);
-            _logger.LogDebug($"Sent card color : {cardColor}, GUID: {id}");
+            CardColor cardColor = cardColorRepo.GetT(experimentNum);
+            _logger.LogDebug($"{experimentNum}: CC sent");
             return TypedResults.Ok(cardColor);
         }
     }

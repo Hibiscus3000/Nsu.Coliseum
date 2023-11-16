@@ -21,12 +21,12 @@ public class CardNumberAcceptedConsumer : IConsumer<CardNumberAccepted>
 
     private readonly IResolver<OpponentUrl> _urlResolver;
 
-    private readonly IRepo<CardColor> _temporaryCardColorStorage;
+    private readonly TupleRepository<CardColor, CardColor> _temporaryCardColorStorage;
 
     public CardNumberAcceptedConsumer(ILogger<CardNumberAcceptedConsumer> logger,
         IExperimentContext experimentContext,
         IResolver<OpponentUrl> urlResolver,
-        IRepo<CardColor> temporaryCardColorStorage)
+        TupleRepository<CardColor, CardColor> temporaryCardColorStorage)
     {
         _logger = logger;
         _experimentContext = experimentContext;
@@ -40,33 +40,30 @@ public class CardNumberAcceptedConsumer : IConsumer<CardNumberAccepted>
     public async Task Consume(ConsumeContext<CardNumberAccepted> context)
     {
         OpponentType opponentType = context.Message.OpponentType.OpponentType;
-        Guid id = context.CorrelationId!.Value;
-        _logger.LogDebug($"Received CNA from {opponentType}, GUID: {id}");
+        long experimentNum = context.Message.ExperimentNum;
+        _logger.LogDebug($"{experimentNum}: CNA, opponent type: {opponentType}");
         if (!context.Message.Success)
             throw new Exception($"Card number acceptation failed from {opponentType} (Main side).");
-        CardColor cardColor = await SendCardColorHttpRequest(opponentType, id);
-        _logger.LogDebug($"Received card color from {opponentType}: {cardColor}, GUID: {id}");
-        AddCardColorToStorage(id, cardColor);
+        CardColor cardColor = await SendCardColorHttpRequest(opponentType, experimentNum);
+        _logger.LogDebug($"{experimentNum}: CC, opponent type: {opponentType}, card color: {cardColor}");
+        AddCardColorToStorage(experimentNum, opponentType, cardColor);
     }
 
     private const string GetCardColorUrlPath = "/api/Opponent/GetCardColor";
 
-    private async Task<CardColor> SendCardColorHttpRequest(OpponentType opponentType, Guid id)
+    private async Task<CardColor> SendCardColorHttpRequest(OpponentType opponentType, long experimentNum)
     {
-        var requestUri = new Uri(_urlResolver.GetT(opponentType).Value + GetCardColorUrlPath + "?guid=" + id);
+        var requestUri = new Uri(_urlResolver.GetT(opponentType).Value + GetCardColorUrlPath + "?experimentNum=" + experimentNum);
         return await _httpClient.GetFromJsonAsync<CardColor>(requestUri);
     }
 
-    private void AddCardColorToStorage(Guid id, CardColor cardColor)
+    private void AddCardColorToStorage(long experimentNum, OpponentType opponentType, CardColor cardColor)
     {
-        if (!_temporaryCardColorStorage.ContainsId(id))
-        {
-            _temporaryCardColorStorage.AddT(id, cardColor);
-            _logger.LogDebug($"Added card color to temporary storage, GUID: {id}");
-        }
-        else
-        {
-            _experimentContext.AddExperimentResult(cardColor == _temporaryCardColorStorage.GetT(id));
-        }
+        bool expResultReady = (0 == opponentType) ? _temporaryCardColorStorage.AddFirst(experimentNum, cardColor) :
+            _temporaryCardColorStorage.AddSecond(experimentNum, cardColor);
+        _logger.LogDebug($"{experimentNum}: added CC to temporary storage, opponent: {opponentType}, card color: {cardColor}");
+
+        if (expResultReady) _experimentContext.AddExperimentResult(
+            _temporaryCardColorStorage.GetFirst(experimentNum) == _temporaryCardColorStorage.GetSecond(experimentNum));
     }
 }

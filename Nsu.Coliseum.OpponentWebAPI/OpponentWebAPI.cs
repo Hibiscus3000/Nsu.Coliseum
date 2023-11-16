@@ -77,8 +77,8 @@ public static class OpponentWebApi
 
         services.AddSingleton<IRepo<CardColor>, Repo<CardColor>>();
         
-        services.AddSingleton<Acknowledger>();
-        services.AddSingleton<DeckAndCardNumRepository>();
+        services.AddScoped<Acknowledger>();
+        services.AddSingleton<TupleRepository<Card[], int>>();
         
         services.AddSingleton<IStrategy>(_ => StrategyResolverByName.ResolveStrategyByName(config["Strategy"]!));
 

@@ -30,18 +30,19 @@ public class PickCardFromDeckConsumer : IConsumer<PickCardFromDeck>
 
     public async Task Consume(ConsumeContext<PickCardFromDeck> context)
     {
-        Guid id = context.CorrelationId!.Value;
-
+        long experimentNum = context.Message.ExperimentNum;
         int cardNumber = await _strategy.PickCardAsync(context.Message.Deck);
+        
+        _logger.LogDebug($"{context.Message.ExperimentNum}: PCD");
         
         await context.Publish(new CardNumberPicked
         {
-            CorrelationId = id,
+            ExperimentNum = experimentNum,
             CardNumber = cardNumber
         }, x =>
         {
             x.SetRoutingKey(_routingKeysResolver.GetName(QueueType.CardNumber).Value);
-            _logger.LogDebug($"Sent CardNumberPicked Message, id: {id}, card number: {cardNumber}");
+            _logger.LogDebug($"{experimentNum}: CNP sent, card number: {cardNumber}");
         });
 
         await _acknowledger.AddDeckAndSendAck(context);
