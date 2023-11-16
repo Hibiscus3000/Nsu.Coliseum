@@ -43,7 +43,7 @@ public class CardNumberAcceptedConsumer : IConsumer<CardNumberAccepted>
         long experimentNum = context.Message.ExperimentNum;
         _logger.LogDebug($"{experimentNum}: CNA, opponent type: {opponentType}");
         if (!context.Message.Success)
-            throw new Exception($"Card number acceptation failed from {opponentType} (Main side).");
+            throw new CardAcceptationException(experimentNum, opponentType);
         CardColor cardColor = await SendCardColorHttpRequest(opponentType, experimentNum);
         _logger.LogDebug($"{experimentNum}: CC, opponent type: {opponentType}, card color: {cardColor}");
         AddCardColorToStorage(experimentNum, opponentType, cardColor);
@@ -65,5 +65,25 @@ public class CardNumberAcceptedConsumer : IConsumer<CardNumberAccepted>
         _logger.LogDebug($"{experimentNum}: added CC to temporary storage, opponent: {opponentType}, card color: {cardColor}");
 
         if (anotherColor.ready) _experimentContext.AddExperimentResult(anotherColor.val == cardColor);
+    }
+}
+
+public class CardAcceptationException : Exception
+{
+    public CardAcceptationException(long experimentNum, OpponentType opponentType) : base($"Failed to accept card from {opponentType}, EXP NUM: {experimentNum}")
+    {
+        
+    }
+
+    public CardAcceptationException()
+    {
+    }
+
+    public CardAcceptationException(string? message) : base(message)
+    {
+    }
+
+    public CardAcceptationException(string? message, Exception? innerException) : base(message, innerException)
+    {
     }
 }
