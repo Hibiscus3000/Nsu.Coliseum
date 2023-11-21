@@ -20,15 +20,14 @@ public class ExperimentTests
     {
         Mock<IStrategy> elonStrategyStub = new();
         Mock<IStrategy> markStrategyStub = new();
+        
         elonStrategyStub.Setup(m => m.PickCard(It.IsAny<Card[]>())).Returns(0);
         markStrategyStub.Setup(m => m.PickCard(It.IsAny<Card[]>())).Returns(0);
+        
         _strategyResolver = new Resolver<IStrategy>();
         _strategyResolver.AddT(OpponentType.Elon, elonStrategyStub.Object);
         _strategyResolver.AddT(OpponentType.Mark, markStrategyStub.Object);
-    }
-
-    private void updateSut()
-    {
+        
         _experimentContext = new ExperimentContext(new Mock<ILogger<ExperimentContext>>().Object);
         _sut = new ExperimentRunner(new Opponents.Opponents(_strategyResolver), _experimentContext);
     }
@@ -36,8 +35,6 @@ public class ExperimentTests
     [Fact]
     public void Execute_ShuffleDeckCalledOneTime()
     {
-        updateSut();
-
         var deckShufflerMock = new Mock<IDeckShuffler>();
         deckShufflerMock.Setup(m => m.ShuffleDeck(It.IsAny<Deck.Deck>()));
 
@@ -64,8 +61,6 @@ public class ExperimentTests
     [Fact]
     public void Execute_LoosingDeckProvided_NumberOfVictoriesEqualsToZero()
     {
-        updateSut();
-
         _deckShufflerStub.Setup(m => m.ShuffleDeck(It.IsAny<Deck.Deck>()))
             .Callback((Deck.Deck deck) => PredefinedDeckShuffle(deck));
 
@@ -79,8 +74,6 @@ public class ExperimentTests
     [Fact]
     public void Execute_WinningDeckProvided_NumberOfVictoriesEqualsToOne()
     {
-        updateSut();
-
         _deckShufflerStub.Setup(m => m.ShuffleDeck(It.IsAny<Deck.Deck>()))
             .Callback((Deck.Deck deck) =>
             {
