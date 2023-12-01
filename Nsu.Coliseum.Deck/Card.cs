@@ -4,16 +4,37 @@ namespace Nsu.Coliseum.Deck;
 
 public class Card
 {
+    /// <summary>
+    /// Used in <see cref="ToString()"/>
+    /// </summary>
     private const char ClubSym = '\u2663';
-    private const char DiamondSym = '\u2662';
-    private const char HeartSym = '\u2661';
-    private const char SpadeSym = '\u2660';
 
+    /// <summary>
+    /// Used in <see cref="ToString()"/>
+    /// </summary>
+    private const char DiamondSym = '\u2662';
+
+    /// <summary>
+    /// Used in <see cref="ToString()"/>
+    /// </summary>
+    private const char HeartSym = '\u2661';
+
+    /// <summary>
+    /// Used in <see cref="ToString()"/>
+    /// </summary>
+    private const char SpadeSym = '\u2660';
 
     public CardColor CardColor { get; }
     public CardType CardType { get; }
-    public int Number { get; } // number from 0 to 8 inclusive
 
+    /// <summary>
+    /// Number from 0 to 8 inclusive
+    /// </summary>
+    public int Number { get; }
+    
+    /// <param name="number">card number from 0 to 8 inclusive</param>
+    /// <exception cref="ArgumentOutOfRangeException">If <c>number</c> is lesser than 0 or greater than 8</exception>
+    /// <exception cref="ArgumentException">if <c>cardType</c> is not from <see cref="CardType"/>></exception>
     [JsonConstructor]
     public Card(CardType cardType, int number)
     {
@@ -26,6 +47,7 @@ public class Card
 
         Number = number;
 
+        // determine card color
         CardColor = cardType switch
         {
             CardType.Club => CardColor.Black,
@@ -39,7 +61,9 @@ public class Card
     public Card(Card card) : this(card.CardType, card.Number)
     {
     }
-
+    
+    /// <param name="stringRepresentation">last symbol corresponds to card suit (<see cref="CardType"/>),
+    /// all the other symbols corresponds to card nominal: 6, 7, 8, 9, 10, J, Q, K or A.</param>
     public static Card String2Card(string stringRepresentation)
     {
         CardType cardType = stringRepresentation[^1] switch
@@ -64,7 +88,8 @@ public class Card
 
         return new(cardType, number);
     }
-
+    
+    /// <returns>String card representation, which format is (nominal + suit). Example: " K♠".</returns>
     public override string ToString() => Number switch
     {
         0 => " 6",
@@ -103,6 +128,9 @@ public class Card
     }
 }
 
+/// <summary>
+/// Card suit
+/// </summary>
 public enum CardType
 {
     Club,
