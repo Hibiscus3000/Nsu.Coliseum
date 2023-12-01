@@ -49,6 +49,7 @@ public class DatabaseTests : IDisposable
     [Fact]
     public void AddThreeExperiments_ThreeExperimentsRead()
     {
+        // Arrange
         using var appContext = CreateContext();
         var experimentRepository = new ExperimentRepository(appContext);
 
@@ -56,6 +57,7 @@ public class DatabaseTests : IDisposable
 
         IDeckProvider deckProvider = CreateDeckProvider(numberOfExperiments);
 
+        // Act
         for (int i = 0; i < numberOfExperiments; ++i)
         {
             var experimentEntity = new ExperimentEntity
@@ -66,13 +68,15 @@ public class DatabaseTests : IDisposable
         }
 
         appContext.SaveChanges();
-
+        
+        // Assert
         Assert.Equal(numberOfExperiments, experimentRepository.GetAllExperiments().Count());
     }
 
     [Fact]
     public void AddExperiment_ReadWrittenDeck()
     {
+        // Arrange
         using var appContext = CreateContext();
         var experimentRepository = new ExperimentRepository(appContext);
 
@@ -80,14 +84,16 @@ public class DatabaseTests : IDisposable
         Deck.Deck deck = deckProvider.GetDeck()!;
 
         Deck.Deck deckCopy = new Deck.Deck(deck);
-
+            
+        // Act
         experimentRepository.AddExperiment(new ExperimentEntity
         {
             Deck = deck
         });
 
         appContext.SaveChanges();
-
+        
+        // Assert
         Assert.Equal(experimentRepository.GetAllExperiments().First().Deck, deckCopy);
     }
 }
